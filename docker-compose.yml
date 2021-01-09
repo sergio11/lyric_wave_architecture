@@ -1,0 +1,68 @@
+version: '3.6'
+
+volumes:
+  apache-airflow_data:
+    driver: local
+  postgres_data:
+    driver: local
+  pgadmin_data:
+    driver: local
+
+services:
+
+  redis:
+    image: 'redis:5.0.5'
+    container_name: airflow_broker
+    restart: always
+    
+  postgres:
+    build: 
+      context: ./postgres
+    container_name: airflow_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: airflow
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: ssanchez00
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: airflow_db_ui
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@dreamsoftware.com
+      PGADMIN_DEFAULT_PASSWORD: ssanchez00
+      PGADMIN_LISTEN_PORT: 80
+    ports:
+      - 8085:80
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+
+  webserver:
+    build: 
+      context: ./airflow
+    container_name: airflow_webserver
+    restart: always
+    depends_on:
+      - postgres
+      - redis
+    environment:
+      - LOAD_EX=n
+      - FERNET_KEY=46BKJoQYlPPOexq0OhDZnIlNepKFf87WFwLbfzqDDho=
+      - EXECUTOR=Celery
+      - POSTGRES_USER=airflow
+      - POSTGRES_PASSWORD=ssanchez00
+      - POSTGRES_DB=airflow
+      - POSTGRES_HOST=airflow_db
+      - REDIS_HOST=airflow_broker
+    volumes:
+      - ./airflow/dags:/usr/local/airflow/dags
+    ports:
+      - "8080:8080"
+    command: webserver
+    healthcheck:
+      test: ["CMD-SHELL", "[ -f /usr/local/airflow/airflow-webserver.pid ]"]
+      interval: 30s
+      timeout: 30s
+      retries: 3
