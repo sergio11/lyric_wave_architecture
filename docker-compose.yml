@@ -66,3 +66,94 @@ services:
       interval: 30s
       timeout: 30s
       retries: 3
+
+  ## Flower is a web based tool for monitoring and administrating Celery clusters.
+  flower:
+    build: 
+      context: ./airflow
+    container_name: airflow_flower
+    restart: always
+    depends_on:
+      - redis
+    environment:
+      - EXECUTOR=Celery
+    ports:
+      - "8081:5555"
+    command: flower
+
+  scheduler:
+    build: 
+      context: ./airflow
+    container_name: airflow_scheduler
+    restart: always
+    depends_on:
+      - webserver
+    volumes:
+      - ./airflow/dags:/usr/local/airflow/dags
+    environment:
+      - LOAD_EX=n
+      - FERNET_KEY=46BKJoQYlPPOexq0OhDZnIlNepKFf87WFwLbfzqDDho=
+      - EXECUTOR=Celery
+      - POSTGRES_USER=airflow
+      - POSTGRES_PASSWORD=ssanchez00
+      - POSTGRES_DB=airflow
+      - POSTGRES_HOST=airflow_db
+      - REDIS_HOST=airflow_broker
+    command: scheduler
+
+  worker:
+    build: 
+      context: ./airflow
+    container_name: airflow_worker_1
+    restart: always
+    depends_on:
+      - scheduler
+    volumes:
+      - ./airflow/dags:/usr/local/airflow/dags
+    environment:
+      - FERNET_KEY=46BKJoQYlPPOexq0OhDZnIlNepKFf87WFwLbfzqDDho=
+      - EXECUTOR=Celery
+      - POSTGRES_USER=airflow
+      - POSTGRES_PASSWORD=ssanchez00
+      - POSTGRES_DB=airflow
+      - POSTGRES_HOST=airflow_db
+      - REDIS_HOST=airflow_broker
+    command: worker
+
+  worker_2:
+    build: 
+      context: ./airflow
+    container_name: airflow_worker_2
+    restart: always
+    depends_on:
+      - scheduler
+    volumes:
+      - ./airflow/dags:/usr/local/airflow/dags
+    environment:
+      - FERNET_KEY=46BKJoQYlPPOexq0OhDZnIlNepKFf87WFwLbfzqDDho=
+      - EXECUTOR=Celery
+      - POSTGRES_USER=airflow
+      - POSTGRES_PASSWORD=ssanchez00
+      - POSTGRES_DB=airflow
+      - POSTGRES_HOST=airflow_db
+      - REDIS_HOST=airflow_broker
+    command: worker
+
+  worker_3:
+    build: 
+      context: ./airflow
+    container_name: airflow_worker_3
+    restart: always
+    depends_on:
+      - scheduler
+    volumes:
+      - ./airflow/dags:/usr/local/airflow/dags
+    environment:
+      - FERNET_KEY=46BKJoQYlPPOexq0OhDZnIlNepKFf87WFwLbfzqDDho=
+      - EXECUTOR=Celery
+      - POSTGRES_USER=airflow
+      - POSTGRES_PASSWORD=ssanchez00
+      - POSTGRES_DB=airflow
+      - POSTGRES_HOST=airflow_db
+      - REDIS_HOST=airflow_broker
+    command: worker
