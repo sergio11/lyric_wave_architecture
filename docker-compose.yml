@@ -1,159 +1,67 @@
-version: '3.6'
-
-volumes:
-  apache-airflow_data:
-    driver: local
-  postgres_data:
-    driver: local
-  pgadmin_data:
-    driver: local
-
+version: '3'
 services:
-
-  redis:
-    image: 'redis:5.0.5'
-    container_name: airflow_broker
-    restart: always
-    
   postgres:
-    build: 
-      context: ./postgres
-    container_name: airflow_db
+    image: postgres:13
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    environment:
-      POSTGRES_DB: airflow
-      POSTGRES_USER: airflow
-      POSTGRES_PASSWORD: ssanchez00
+    networks:
+      - airflow_network
 
-  pgadmin:
-    image: dpage/pgadmin4
-    container_name: airflow_db_ui
-    restart: always
-    environment:
-      PGADMIN_DEFAULT_EMAIL: admin@dreamsoftware.com
-      PGADMIN_DEFAULT_PASSWORD: ssanchez00
-      PGADMIN_LISTEN_PORT: 80
+  mongo:
+    image: mongo:4
     ports:
-      - 8085:80
+      - "27017:27017"
     volumes:
-      - pgadmin_data:/var/lib/pgadmin
+      - mongo_data:/data/db
+    networks:
+      - airflow_network
 
   webserver:
-    build: 
-      context: ./airflow
-    container_name: airflow_webserver
-    restart: always
-    depends_on:
-      - postgres
-      - redis
+    image: apache/airflow:2.2.3
     environment:
-      - LOAD_EX=n
-      - FERNET_KEY=46BKJoQYlPPOexq0OhDZnIlNepKFf87WFwLbfzqDDho=
-      - EXECUTOR=Celery
-      - POSTGRES_USER=airflow
-      - POSTGRES_PASSWORD=ssanchez00
-      - POSTGRES_DB=airflow
-      - POSTGRES_HOST=airflow_db
-      - REDIS_HOST=airflow_broker
+      LOAD_EX: n
+      EXECUTOR: CeleryExecutor
     volumes:
-      - ./airflow/dags:/usr/local/airflow/dags
+      - ./dags:/opt/airflow/dags
+      - ./logs:/opt/airflow/logs
+      - ./operators:/opt/airflow/operators
+    command: bash -c "pip install -r /opt/airflow/dags/requirements.txt && airflow db init && airflow db migrate && airflow db upgrade && airflow webserver"
     ports:
       - "8080:8080"
-    command: webserver
-    healthcheck:
-      test: ["CMD-SHELL", "[ -f /usr/local/airflow/airflow-webserver.pid ]"]
-      interval: 30s
-      timeout: 30s
-      retries: 3
-
-  ## Flower is a web based tool for monitoring and administrating Celery clusters.
-  flower:
-    build: 
-      context: ./airflow
-    container_name: airflow_flower
-    restart: always
     depends_on:
-      - redis
-    environment:
-      - EXECUTOR=Celery
-    ports:
-      - "8081:5555"
-    command: flower
-
-  scheduler:
-    build: 
-      context: ./airflow
-    container_name: airflow_scheduler
-    restart: always
-    depends_on:
-      - webserver
-    volumes:
-      - ./airflow/dags:/usr/local/airflow/dags
-    environment:
-      - LOAD_EX=n
-      - FERNET_KEY=46BKJoQYlPPOexq0OhDZnIlNepKFf87WFwLbfzqDDho=
-      - EXECUTOR=Celery
-      - POSTGRES_USER=airflow
-      - POSTGRES_PASSWORD=ssanchez00
-      - POSTGRES_DB=airflow
-      - POSTGRES_HOST=airflow_db
-      - REDIS_HOST=airflow_broker
-    command: scheduler
+      - postgres
+      - mongo
+    env_file:
+      - .env
+    networks:
+      - airflow_network
 
   worker:
-    build: 
-      context: ./airflow
-    container_name: airflow_worker_1
-    restart: always
-    depends_on:
-      - scheduler
-    volumes:
-      - ./airflow/dags:/usr/local/airflow/dags
+    image: apache/airflow:2.2.3
+    command: celery worker
     environment:
-      - FERNET_KEY=46BKJoQYlPPOexq0OhDZnIlNepKFf87WFwLbfzqDDho=
-      - EXECUTOR=Celery
-      - POSTGRES_USER=airflow
-      - POSTGRES_PASSWORD=ssanchez00
-      - POSTGRES_DB=airflow
-      - POSTGRES_HOST=airflow_db
-      - REDIS_HOST=airflow_broker
-    command: worker
+      LOAD_EX: n
+      EXECUTOR: CeleryExecutor
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./logs:/opt/airflow/logs
+      - ./operators:/opt/airflow/operators
+    command: bash -c "pip install -r /opt/airflow/dags/requirements.txt && airflow worker"
+    depends_on:
+      - postgres
+      - mongo
+    env_file:
+      - .env
+    networks:
+      - airflow_network
 
-  worker_2:
-    build: 
-      context: ./airflow
-    container_name: airflow_worker_2
-    restart: always
-    depends_on:
-      - scheduler
-    volumes:
-      - ./airflow/dags:/usr/local/airflow/dags
-    environment:
-      - FERNET_KEY=46BKJoQYlPPOexq0OhDZnIlNepKFf87WFwLbfzqDDho=
-      - EXECUTOR=Celery
-      - POSTGRES_USER=airflow
-      - POSTGRES_PASSWORD=ssanchez00
-      - POSTGRES_DB=airflow
-      - POSTGRES_HOST=airflow_db
-      - REDIS_HOST=airflow_broker
-    command: worker
+networks:
+  airflow_network:
 
-  worker_3:
-    build: 
-      context: ./airflow
-    container_name: airflow_worker_3
-    restart: always
-    depends_on:
-      - scheduler
-    volumes:
-      - ./airflow/dags:/usr/local/airflow/dags
-    environment:
-      - FERNET_KEY=46BKJoQYlPPOexq0OhDZnIlNepKFf87WFwLbfzqDDho=
-      - EXECUTOR=Celery
-      - POSTGRES_USER=airflow
-      - POSTGRES_PASSWORD=ssanchez00
-      - POSTGRES_DB=airflow
-      - POSTGRES_HOST=airflow_db
-      - REDIS_HOST=airflow_broker
-    command: worker
+volumes:
+  postgres_data:
+  mongo_data:
