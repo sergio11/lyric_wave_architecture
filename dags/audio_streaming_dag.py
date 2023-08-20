@@ -2,10 +2,10 @@
 from airflow import DAG
 from datetime import datetime
 from airflow.operators.dummy_operator import DummyOperator
-from generate_operators import GenerateMelodyOperator, GenerateVoiceOperator
-from combine_audio_operator import CombineAudioOperator
-from generate_abstract_image_operator import GenerateAbstractImageOperator
-from save_to_mongodb_operator import SaveToMongoDBOperator
+from operators import GenerateMelodyOperator, GenerateVoiceOperator
+from operators import CombineAudioOperator
+from operators import GenerateAbstractImageOperator
+from operators import SaveToMongoDBOperator
 
 default_args = {
     'owner': 'airflow',
