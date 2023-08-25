@@ -4,3 +4,4 @@ tensorflow==2.6.0
 gtts==2.2.3
 pydub==0.25.1
 pymongo==4.0.1
+urllib3==1.26.7

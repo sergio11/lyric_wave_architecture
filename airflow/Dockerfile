@@ -1,12 +1,12 @@
 FROM python:3.7-slim-buster
-LABEL maintainer="Puckel_"
+LABEL maintainer="Sergio Sánchez Sánchez"
 
 # Never prompt the user for choices on installation/configuration of packages
 ENV DEBIAN_FRONTEND noninteractive
 ENV TERM linux
 
 # Airflow
-ARG AIRFLOW_VERSION=1.10.10
+ARG AIRFLOW_VERSION=2.2.3
 ARG AIRFLOW_USER_HOME=/usr/local/airflow
 ARG AIRFLOW_DEPS=""
 ARG PYTHON_DEPS=""
