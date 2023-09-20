@@ -33,7 +33,6 @@ services:
     networks:
       - airflow_network
     
-
   postgres:
     image: postgres:13
     container_name: airflow_db
@@ -53,9 +52,11 @@ services:
     container_name: airflow_db_ui
     restart: always
     environment:
-      PGADMIN_DEFAULT_EMAIL: admin@dreamsoftware.com
-      PGADMIN_DEFAULT_PASSWORD: ssanchez00
-      PGADMIN_LISTEN_PORT: 80
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+      PGADMIN_LISTEN_PORT: ${PGADMIN_LISTEN_PORT}
+    env_file:
+      - .env
     ports:
       - 8085:80
     volumes:
@@ -68,18 +69,20 @@ services:
       context: ./airflow
     container_name: airflow_webserver
     restart: always
+    env_file:
+      - .env
     depends_on:
       - postgres
       - redis
     environment:
-      - LOAD_EX=n
-      - FERNET_KEY=46BKJoQYlPPOexq0OhDZnIlNepKFf87WFwLbfzqDDho=
-      - EXECUTOR=Celery
-      - POSTGRES_USER=airflow
-      - POSTGRES_PASSWORD=ssanchez00
-      - POSTGRES_DB=airflow
-      - POSTGRES_HOST=airflow_db
-      - REDIS_HOST=airflow_broker
+      LOAD_EX: ${LOAD_EX}
+      FERNET_KEY: ${FERNET_KEY}
+      EXECUTOR: ${EXECUTOR}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_HOST: ${POSTGRES_HOST}
+      REDIS_HOST: ${REDIS_HOST}
     volumes:
       - ./airflow/dags:/usr/local/airflow/dags
     ports:
@@ -99,10 +102,12 @@ services:
       context: ./airflow
     container_name: airflow_flower
     restart: always
+    env_file:
+      - .env
     depends_on:
       - redis
     environment:
-      - EXECUTOR=Celery
+      EXECUTOR: ${EXECUTOR}
     ports:
       - "8081:5555"
     command: flower
@@ -114,19 +119,21 @@ services:
       context: ./airflow
     container_name: airflow_scheduler
     restart: always
+    env_file:
+      - .env
     depends_on:
       - webserver
     volumes:
       - ./airflow/dags:/usr/local/airflow/dags
     environment:
-      - LOAD_EX=n
-      - FERNET_KEY=46BKJoQYlPPOexq0OhDZnIlNepKFf87WFwLbfzqDDho=
-      - EXECUTOR=Celery
-      - POSTGRES_USER=airflow
-      - POSTGRES_PASSWORD=ssanchez00
-      - POSTGRES_DB=airflow
-      - POSTGRES_HOST=airflow_db
-      - REDIS_HOST=airflow_broker
+      LOAD_EX: ${LOAD_EX}
+      FERNET_KEY: ${FERNET_KEY}
+      EXECUTOR: ${EXECUTOR}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_HOST: ${POSTGRES_HOST}
+      REDIS_HOST: ${REDIS_HOST}
     command: scheduler
     networks:
       - airflow_network
@@ -136,18 +143,20 @@ services:
       context: ./airflow
     container_name: airflow_worker_1
     restart: always
+    env_file:
+      - .env
     depends_on:
       - scheduler
     volumes:
       - ./airflow/dags:/usr/local/airflow/dags
     environment:
-      - FERNET_KEY=46BKJoQYlPPOexq0OhDZnIlNepKFf87WFwLbfzqDDho=
-      - EXECUTOR=Celery
-      - POSTGRES_USER=airflow
-      - POSTGRES_PASSWORD=ssanchez00
-      - POSTGRES_DB=airflow
-      - POSTGRES_HOST=airflow_db
-      - REDIS_HOST=airflow_broker
+      FERNET_KEY: ${FERNET_KEY}
+      EXECUTOR: ${EXECUTOR}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_HOST: ${POSTGRES_HOST}
+      REDIS_HOST: ${REDIS_HOST}
     command: worker
     networks:
       - airflow_network
@@ -157,18 +166,20 @@ services:
       context: ./airflow
     container_name: airflow_worker_2
     restart: always
+    env_file:
+      - .env
     depends_on:
       - scheduler
     volumes:
       - ./airflow/dags:/usr/local/airflow/dags
     environment:
-      - FERNET_KEY=46BKJoQYlPPOexq0OhDZnIlNepKFf87WFwLbfzqDDho=
-      - EXECUTOR=Celery
-      - POSTGRES_USER=airflow
-      - POSTGRES_PASSWORD=ssanchez00
-      - POSTGRES_DB=airflow
-      - POSTGRES_HOST=airflow_db
-      - REDIS_HOST=airflow_broker
+      FERNET_KEY: ${FERNET_KEY}
+      EXECUTOR: ${EXECUTOR}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_HOST: ${POSTGRES_HOST}
+      REDIS_HOST: ${REDIS_HOST}
     command: worker
     networks:
       - airflow_network
@@ -177,19 +188,21 @@ services:
     build: 
       context: ./airflow
     container_name: airflow_worker_3
+    env_file:
+      - .env
     restart: always
     depends_on:
       - scheduler
     volumes:
       - ./airflow/dags:/usr/local/airflow/dags
     environment:
-      - FERNET_KEY=46BKJoQYlPPOexq0OhDZnIlNepKFf87WFwLbfzqDDho=
-      - EXECUTOR=Celery
-      - POSTGRES_USER=airflow
-      - POSTGRES_PASSWORD=ssanchez00
-      - POSTGRES_DB=airflow
-      - POSTGRES_HOST=airflow_db
-      - REDIS_HOST=airflow_broker
+      FERNET_KEY: ${FERNET_KEY}
+      EXECUTOR: ${EXECUTOR}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_HOST: ${POSTGRES_HOST}
+      REDIS_HOST: ${REDIS_HOST}
     command: worker
     networks:
       - airflow_network
