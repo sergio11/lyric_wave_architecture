@@ -38,7 +38,7 @@ wait_for_port() {
       echo >&2 "$(date) - $host:$port still not reachable, giving up"
       exit 1
     fi
-    echo "$(date) - waiting for $name... $j/$TRY_LOOP"
+    echo "$(date) - waiting for $name ($host:$port)... $j/$TRY_LOOP"
     sleep 5
   done
 }
@@ -117,12 +117,12 @@ case "$1" in
     fi
     exec airflow webserver
     ;;
-  worker|scheduler)
+  worker|flower)
     # Give the webserver time to run initdb.
     sleep 10
-    exec airflow "$@"
+    exec airflow celery "$@"
     ;;
-  flower)
+  scheduler)
     sleep 10
     exec airflow "$@"
     ;;
