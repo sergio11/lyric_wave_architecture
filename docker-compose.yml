@@ -1,5 +1,6 @@
 version: '3.6'
 
+# Define named volumes for persistent data
 volumes:
   apache-airflow_data:
     driver: local
@@ -10,14 +11,15 @@ volumes:
   mongo_data:
     driver: local
 
+# Define a custom network for services to communicate
 networks:
   airflow_network:
 
 services:
 
-  # MongoDB container
+  # MongoDB container for Apache Airflow
   mongo:
-    container_name: mongo
+    container_name: airflow_mongo
     image: mongo:4
     ports:
       - "27017:27017"
@@ -26,6 +28,7 @@ services:
     networks:
       - airflow_network
 
+  # Redis container for Apache Airflow's message broker
   redis:
     image: 'redis:5.0.5'
     container_name: airflow_broker
@@ -33,6 +36,7 @@ services:
     networks:
       - airflow_network
     
+  # PostgreSQL database container for Apache Airflow
   postgres:
     image: postgres:13
     container_name: airflow_db
@@ -47,6 +51,7 @@ services:
     networks:
       - airflow_network
 
+  # pgAdmin container for managing the PostgreSQL database
   pgadmin:
     image: dpage/pgadmin4
     container_name: airflow_db_ui
@@ -64,6 +69,7 @@ services:
     networks:
       - airflow_network
 
+  # Apache Airflow webserver container
   webserver:
     build: 
       context: ./airflow
@@ -96,7 +102,7 @@ services:
     networks:
       - airflow_network
 
-  ## Flower is a web based tool for monitoring and administrating Celery clusters.
+  # Flower is a web-based tool for monitoring and administrating Celery clusters.
   flower:
     build: 
       context: ./airflow
@@ -114,6 +120,7 @@ services:
     networks:
       - airflow_network
 
+  # Apache Airflow scheduler container
   scheduler:
     build: 
       context: ./airflow
@@ -138,6 +145,7 @@ services:
     networks:
       - airflow_network
 
+  # Apache Airflow worker containers
   worker:
     build: 
       context: ./airflow
@@ -161,6 +169,7 @@ services:
     networks:
       - airflow_network
 
+  # Additional Apache Airflow worker containers
   worker_2:
     build: 
       context: ./airflow

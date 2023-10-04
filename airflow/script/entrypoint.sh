@@ -80,20 +80,20 @@ fi
 
 # CeleryExecutor drives the need for a Celery broker, here Redis is used
 if [ "$AIRFLOW__CORE__EXECUTOR" = "CeleryExecutor" ]; then
-  # Check if the user has provided explicit Airflow configuration concerning the broker
+  # Check if the user has provided an explicit Airflow configuration concerning the broker
   if [ -z "$AIRFLOW__CELERY__BROKER_URL" ]; then
     # Default values corresponding to the default compose files
-    : "${REDIS_PROTO:="redis://"}"
-    : "${REDIS_HOST:="redis"}"
-    : "${REDIS_PORT:="6379"}"
-    : "${REDIS_PASSWORD:=""}"
-    : "${REDIS_DBNUM:="1"}"
+    REDIS_PROTO="${REDIS_PROTO:-redis://}"
+    REDIS_HOST="${REDIS_HOST:-redis}"
+    REDIS_PORT="${REDIS_PORT:-6379}"
+    REDIS_PASSWORD="${REDIS_PASSWORD:-}"
+    REDIS_DBNUM="${REDIS_DBNUM:-1}"
 
     # When Redis is secured by basic auth, it does not handle the username part of basic auth, only a token
     if [ -n "$REDIS_PASSWORD" ]; then
       REDIS_PREFIX=":${REDIS_PASSWORD}@"
     else
-      REDIS_PREFIX=
+      REDIS_PREFIX=""
     fi
 
     AIRFLOW__CELERY__BROKER_URL="${REDIS_PROTO}${REDIS_PREFIX}${REDIS_HOST}:${REDIS_PORT}/${REDIS_DBNUM}"
@@ -101,10 +101,11 @@ if [ "$AIRFLOW__CORE__EXECUTOR" = "CeleryExecutor" ]; then
   else
     # Derive useful variables from the AIRFLOW__ variables provided explicitly by the user
     REDIS_ENDPOINT=$(echo -n "$AIRFLOW__CELERY__BROKER_URL" | cut -d '/' -f3 | sed -e 's,.*@,,')
-    REDIS_HOST=$(echo -n "$POSTGRES_ENDPOINT" | cut -d ':' -f1)
-    REDIS_PORT=$(echo -n "$POSTGRES_ENDPOINT" | cut -d ':' -f2)
+    REDIS_HOST=$(echo -n "$REDIS_ENDPOINT" | cut -d ':' -f1)
+    REDIS_PORT=$(echo -n "$REDIS_ENDPOINT" | cut -d ':' -f2)
   fi
 
+  # Wait for the Redis server to be ready
   wait_for_port "Redis" "$REDIS_HOST" "$REDIS_PORT"
 fi
 
@@ -116,6 +117,7 @@ case "$1" in
       airflow scheduler &
     fi
     exec airflow webserver
+    exec airflow users create -r Admin -u dreamsoftware -e dreamsoftware@lirywave.com -f Sergio -l Sánchez -p dreamsoftware00
     ;;
   worker|flower)
     # Give the webserver time to run initdb.
