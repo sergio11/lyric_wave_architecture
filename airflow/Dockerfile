@@ -41,6 +41,7 @@ RUN set -ex \
         build-essential \
         default-libmysqlclient-dev \
         apt-utils \
+        vim \
         curl \
         rsync \
         netcat \
@@ -63,15 +64,16 @@ RUN set -ex \
         /usr/share/doc \
         /usr/share/doc-base
 
-
 WORKDIR ${AIRFLOW_USER_HOME}
 
+COPY ./requirements.txt requirements.txt
 COPY ./script/entrypoint.sh entrypoint.sh
 COPY ./config/airflow.cfg airflow.cfg
-COPY ./package/requirements.txt requirements.txt
 
 RUN dos2unix entrypoint.sh
 RUN chmod +x entrypoint.sh
+
+RUN pip install -r requirements.txt
 
 RUN uname -a
 RUN pwd
