@@ -35,6 +35,18 @@ task :status do
 	puts `docker-compose ps 2>&1`
 end
 
+desc "Build and push Apache Airflow Docker image"
+task :build_and_push_airflow_image do
+  image_name = "ssanchez11/lyric_wave_apache_airflow:0.0.1"
+  puts "Building Apache Airflow Docker image..."
+  build_command = "docker build -t #{image_name}  ./airflow"
+  system(build_command)
+  puts "Pushing Apache Airflow Docker image to DockerHub..."
+  push_command = "docker push #{image_name}"
+  system(push_command)
+  puts "Apache Airflow image built and pushed successfully."
+end
+
 
 desc "Cleaning Evironment Task"
 task :cleaning_environment_task do 

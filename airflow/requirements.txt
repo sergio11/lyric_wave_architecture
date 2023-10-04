@@ -1,0 +1,15 @@
+markupsafe==2.0.1
+psycopg2-binary==2.9.1
+redis==5.0.1
+ndg-httpsclient
+pytz
+pyOpenSSL
+ndg-httpsclient
+pyasn1
+apache-airflow==2.2.3
+magenta==2.1.3
+tensorflow==2.10.0
+gtts==2.2.3
+pydub==0.25.1
+pymongo==4.0.1
+urllib3==1.26.7

@@ -65,14 +65,13 @@ services:
     ports:
       - 8085:80
     volumes:
-      - pgadmin_data:/var/lib/pgadmin
+      - ./pgadmin_data:/var/lib/pgadmin
     networks:
       - airflow_network
 
   # Apache Airflow webserver container
   webserver:
-    build: 
-      context: ./airflow
+    image: ssanchez11/lyric_wave_apache_airflow:0.0.1
     container_name: airflow_webserver
     restart: always
     env_file:
@@ -104,8 +103,7 @@ services:
 
   # Flower is a web-based tool for monitoring and administrating Celery clusters.
   flower:
-    build: 
-      context: ./airflow
+    image: ssanchez11/lyric_wave_apache_airflow:0.0.1
     container_name: airflow_flower
     restart: always
     env_file:
@@ -122,8 +120,7 @@ services:
 
   # Apache Airflow scheduler container
   scheduler:
-    build: 
-      context: ./airflow
+    image: ssanchez11/lyric_wave_apache_airflow:0.0.1
     container_name: airflow_scheduler
     restart: always
     env_file:
@@ -145,10 +142,9 @@ services:
     networks:
       - airflow_network
 
-  # Apache Airflow worker containers
+   # Apache Airflow worker containers
   worker:
-    build: 
-      context: ./airflow
+    image: ssanchez11/lyric_wave_apache_airflow:0.0.1
     container_name: airflow_worker_1
     restart: always
     env_file:
@@ -171,8 +167,7 @@ services:
 
   # Additional Apache Airflow worker containers
   worker_2:
-    build: 
-      context: ./airflow
+    image: ssanchez11/lyric_wave_apache_airflow:0.0.1
     container_name: airflow_worker_2
     restart: always
     env_file:
@@ -194,8 +189,7 @@ services:
       - airflow_network
 
   worker_3:
-    build: 
-      context: ./airflow
+    image: ssanchez11/lyric_wave_apache_airflow:0.0.1
     container_name: airflow_worker_3
     env_file:
       - .env
@@ -215,3 +209,5 @@ services:
     command: worker
     networks:
       - airflow_network
+
+ 
