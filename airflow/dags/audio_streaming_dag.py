@@ -1,10 +1,10 @@
 from datetime import datetime
 from airflow import DAG
 from airflow.operators.dummy_operator import DummyOperator
-from generate_melody_operator import GenerateMelodyOperator
-from generate_voice_operator import GenerateVoiceOperator
-from combine_audio_operator import CombineAudioOperator
-from generate_abstract_image_operator import GenerateAbstractImageOperator
+from operators.generate_melody_operator import GenerateMelodyOperator
+from operators.generate_voice_operator import GenerateVoiceOperator
+from operators.combine_audio_operator import CombineAudioOperator
+from operators.generate_abstract_image_operator import GenerateAbstractImageOperator
 import os
 
 default_args = {
@@ -13,7 +13,7 @@ default_args = {
     'retries': 1,
 }
 
-with DAG('music_generation_dag', default_args=default_args, schedule_interval=None, catchup=False) as dag:
+with DAG('music_generation_dag', default_args=default_args, default_view="graph", schedule_interval=None, catchup=False) as dag:
     start_task = DummyOperator(task_id='start_task')
 
     generate_melody_task = GenerateMelodyOperator(
