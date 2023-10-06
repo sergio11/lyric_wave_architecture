@@ -1,14 +1,24 @@
-# generate_melody_operator.py
 from airflow.models import BaseOperator
 from airflow.utils.decorators import apply_defaults
-import magenta.music as mm
-import logging
-import gridfs
-from pymongo import MongoClient
 from urllib.request import urlopen
 from urllib.error import HTTPError
-import json
 import os
+import json
+import gridfs
+from pymongo import MongoClient
+import logging
+
+def lazy_import_magenta_music():
+    global mm
+    if mm is None:
+        import magenta.music as magenta_music
+        mm = magenta_music
+
+def lazy_import_magenta_midi_io():
+    global midi_io
+    if midi_io is None:
+        from magenta.music import midi_io as magenta_midi_io
+        midi_io = magenta_midi_io
 
 class GenerateMelodyOperator(BaseOperator):
     @apply_defaults
@@ -26,7 +36,6 @@ class GenerateMelodyOperator(BaseOperator):
         self.mongo_db = mongo_db
         self.mongo_db_collection = mongo_db_collection
         self.model_output_dir = '/magenta/model'
-
 
     def _join_url(self, *parts):
         return '/'.join(parts)
@@ -81,7 +90,8 @@ class GenerateMelodyOperator(BaseOperator):
 
         logging.info(f"Generating melody for '{song_title}' with text: {song_text}")
 
-        # Initialize the MusicVAE model
+        # Initialize the MusicVAE model (with lazy import)
+        lazy_import_magenta_music()
         model = mm.MusicVAE(self.model_output_dir)
         
         # Encode the text into a melody and generate the melody
@@ -90,7 +100,8 @@ class GenerateMelodyOperator(BaseOperator):
         logging.info("Melody generated successfully")
 
         # Convert the generated melody to a MIDI file in memory
-        midi_data = mm.midi_io.sequence_proto_to_midi_file(generated_melody)
+        lazy_import_magenta_midi_io()
+        midi_data = midi_io.sequence_proto_to_midi_file(generated_melody)
         
         # Store the melody data, title, and text in MongoDB using GridFS
         client = MongoClient(self.mongo_uri)
