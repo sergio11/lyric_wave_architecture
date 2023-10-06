@@ -1,10 +1,7 @@
 from datetime import datetime
 from airflow import DAG
 from airflow.operators.dummy_operator import DummyOperator
-from operators.generate_melody_operator import GenerateMelodyOperator
-from operators.generate_voice_operator import GenerateVoiceOperator
-from operators.combine_audio_operator import CombineAudioOperator
-from operators.generate_abstract_image_operator import GenerateAbstractImageOperator
+import importlib
 import os
 
 default_args = {
@@ -15,6 +12,15 @@ default_args = {
 
 with DAG('music_generation_dag', default_args=default_args, default_view="graph", schedule_interval=None, catchup=False) as dag:
     start_task = DummyOperator(task_id='start_task')
+
+    operators_module = importlib.import_module('operators.generate_melody_operator')
+    GenerateMelodyOperator = operators_module.GenerateMelodyOperator
+    operators_module = importlib.import_module('operators.generate_voice_operator')
+    GenerateVoiceOperator = operators_module.GenerateVoiceOperator
+    operators_module = importlib.import_module('operators.combine_audio_operator')
+    CombineAudioOperator = operators_module.CombineAudioOperator
+    operators_module = importlib.import_module('operators.generate_abstract_image_operator')
+    GenerateAbstractImageOperator = operators_module.GenerateAbstractImageOperator
 
     generate_melody_task = GenerateMelodyOperator(
         task_id='generate_melody_task',
