@@ -5,6 +5,11 @@ from pymongo import MongoClient
 from bson import ObjectId
 import uuid
 from datetime import datetime, timedelta
+import logging
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # Get MongoDB connection details from environment variables
 MONGO_URI = os.environ.get("MONGO_URI")
@@ -25,69 +30,88 @@ fs = db[MONGO_COLLECTION]
 # Create a Flask application
 app = Flask(__name__)
 
+# Global error handler
+@app.errorhandler(Exception)
+def handle_error(e):
+    logger.error(f"An error occurred: {str(e)}")
+    return jsonify({"message": "An internal server error occurred"}), 500
+
 # API endpoint for generating a song
 @app.route('/generate_song', methods=['POST'])
 def generate_song():
-    # Get song title and text from the request's JSON data
-    song_title = request.json.get('title')
-    song_text = request.json.get('text')
-    description = request.json.get('description')
+    logger.info("Received a request to generate a song.")
+    
+    try:
+        # Get song title and text from the request's JSON data
+        song_title = request.json.get('title')
+        song_text = request.json.get('text')
+        description = request.json.get('description')
 
-    if song_title and song_text:
-        # Generate a unique DAG run ID
-        dag_run_id = str(uuid.uuid4())
+        if song_title and song_text:
+            logger.info(f"Generating song for '{song_title}' with description: {description}")
 
-        # Calculate the logical date 2 minutes from now
-        logical_date = datetime.utcnow() + timedelta(minutes=2)
-        logical_date_str = logical_date.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+            # Generate a unique DAG run ID
+            dag_run_id = str(uuid.uuid4())
 
-        # Build the URL to trigger the DAG execution
-        airflow_dag_url = f"{AIRFLOW_API_URL}/dags/{AIRFLOW_DAG_ID}/dagRuns"
+            # Calculate the logical date 2 minutes from now
+            logical_date = datetime.utcnow() + timedelta(minutes=2)
+            logical_date_str = logical_date.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
 
-        # Create a BSON document with song information
-        song_info = {
-            "song_title": song_title,
-            "song_text": song_text,
-            "description": description,
-            "dag_run_id": dag_run_id,
-            "logical_date": logical_date_str,
-            "planned": False  # Initial status, not yet planned
-        }
+            # Build the URL to trigger the DAG execution
+            airflow_dag_url = f"{AIRFLOW_API_URL}/dags/{AIRFLOW_DAG_ID}/dagRuns"
 
-        # Insert the BSON document into MongoDB collection and get the ObjectID
-        song_info_id = fs.insert_one(song_info).inserted_id
+            # Create a BSON document with song information
+            song_info = {
+                "song_title": song_title,
+                "song_text": song_text,
+                "description": description,
+                "dag_run_id": dag_run_id,
+                "logical_date": logical_date_str,
+                "planned": False  # Initial status, not yet planned
+            }
 
-        # Configure DAG run parameters
-        dag_run_conf = {
-            "conf": {
-                "song_info_id": str(song_info_id),
-            },
-            "dag_run_id": dag_run_id,
-            "logical_date": logical_date_str,
-            "note": description
-        }
+            # Insert the BSON document into MongoDB collection and get the ObjectID
+            song_info_id = fs.insert_one(song_info).inserted_id
 
-        # Trigger an Airflow DAG execution by sending a POST request
-        response = requests.post(
-            airflow_dag_url,
-            json=dag_run_conf,
-            headers={"Content-Type": "application/json"}
-        )
+            logger.info(f"Inserted song information into MongoDB with ID: {song_info_id}")
 
-        if response.status_code == 200:
-            # Update the BSON document with "planned" flag and date
-            fs.update_one(
-                {"_id": song_info_id},
-                {"$set": {"planned": True, "planned_date": logical_date_str}}
+            # Configure DAG run parameters
+            dag_run_conf = {
+                "conf": {
+                    "song_info_id": str(song_info_id),
+                },
+                "dag_run_id": dag_run_id,
+                "logical_date": logical_date_str,
+                "note": description
+            }
+
+            # Trigger an Airflow DAG execution by sending a POST request
+            response = requests.post(
+                airflow_dag_url,
+                json=dag_run_conf,
+                headers={"Content-Type": "application/json"}
             )
 
-            return jsonify({"message": "DAG execution triggered successfully"}), 200
+            if response.status_code == 200:
+                # Update the BSON document with "planned" flag and date
+                fs.update_one(
+                    {"_id": song_info_id},
+                    {"$set": {"planned": True, "planned_date": logical_date_str}}
+                )
+
+                logger.info("DAG execution triggered successfully")
+                return jsonify({"message": "DAG execution triggered successfully"}), 200
+            else:
+                # If DAG execution failed, remove the document from MongoDB
+                fs.delete_one({"_id": song_info_id})
+                logger.error("Error triggering DAG execution")
+                return jsonify({"message": "Error triggering DAG execution"}), 500
         else:
-            # If DAG execution failed, remove the document from MongoDB
-            fs.delete_one({"_id": song_info_id})
-            return jsonify({"message": "Error triggering DAG execution"}), 500
-    else:
-        return jsonify({"message": "Missing title or text parameters"}), 400
+            logger.error("Missing title or text parameters")
+            return jsonify({"message": "Missing title or text parameters"}), 400
+    except Exception as e:
+        logger.error(f"An error occurred: {str(e)}")
+        return jsonify({"message": "An internal server error occurred"}), 500
 
 # API endpoint for streaming audio by song ID
 @app.route('/stream_audio/<song_id>')
