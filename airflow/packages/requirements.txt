@@ -12,3 +12,4 @@ gtts==2.2.3
 pydub==0.25.1
 pymongo==4.0.1
 urllib3==1.26.7
+minio==7.1.17

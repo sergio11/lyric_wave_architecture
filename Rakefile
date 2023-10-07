@@ -92,6 +92,29 @@ task :check_deployment_file_task do
     puts "Deployment File OK"
 end
 
+# MinIO Cluster
+namespace :minio do
+
+  desc "Check MinIO Cluster Deployment File"
+  task :check_deployment_file do
+    puts "Check MinIO Cluster Deployment File ..."
+    raise "Deployment file not found, please check availability" unless File.file?("./minio_cluster/docker-compose.yml")
+    puts "Platform Deployment File OK!"
+  end
+
+  desc "Start and configure Cluster Containers"
+  task :start => [ :check_docker_task, :login, :check_deployment_file ] do 
+    puts "Start Cluster Containers"
+    puts `docker-compose -f ./minio_cluster/docker-compose.yml up -d`
+  end 
+
+  desc "Stop Cluster Containers"
+  task :stop => [ :check_docker_task, :login, :check_deployment_file  ] do
+    puts "Stop Cluster Containers"
+    puts `docker-compose -f ./minio_cluster/docker-compose.yml stop 2>&1`
+  end
+
+end
 
 
 ## Utils Functions

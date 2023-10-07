@@ -41,20 +41,31 @@ def generate_song():
         logical_date = datetime.utcnow() + timedelta(minutes=2)
         logical_date_str = logical_date.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
 
+        # Build the URL to trigger the DAG execution
+        airflow_dag_url = f"{AIRFLOW_API_URL}/dags/{AIRFLOW_DAG_ID}/dagRuns"
+
+        # Create a BSON document with song information
+        song_info = {
+            "song_title": song_title,
+            "song_text": song_text,
+            "description": description,
+            "dag_run_id": dag_run_id,
+            "logical_date": logical_date_str,
+            "planned": False  # Initial status, not yet planned
+        }
+
+        # Insert the BSON document into MongoDB collection and get the ObjectID
+        song_info_id = fs.insert_one(song_info).inserted_id
+
         # Configure DAG run parameters
         dag_run_conf = {
             "conf": {
-                "song_title": song_title,
-                "song_text": song_text,
-                "description": description
+                "song_info_id": str(song_info_id),
             },
             "dag_run_id": dag_run_id,
             "logical_date": logical_date_str,
             "note": description
         }
-
-        # Build the URL to trigger the DAG execution
-        airflow_dag_url = f"{AIRFLOW_API_URL}/dags/{AIRFLOW_DAG_ID}/dagRuns"
 
         # Trigger an Airflow DAG execution by sending a POST request
         response = requests.post(
@@ -64,20 +75,16 @@ def generate_song():
         )
 
         if response.status_code == 200:
-            # Create a BSON document with song information
-            song_info = {
-                "song_title": song_title,
-                "song_text": song_text,
-                "description": description,
-                "dag_run_id": dag_run_id,
-                "logical_date": logical_date_str
-            }
-
-            # Insert the BSON document into MongoDB collection
-            fs.insert_one(song_info)
+            # Update the BSON document with "planned" flag and date
+            fs.update_one(
+                {"_id": song_info_id},
+                {"$set": {"planned": True, "planned_date": logical_date_str}}
+            )
 
             return jsonify({"message": "DAG execution triggered successfully"}), 200
         else:
+            # If DAG execution failed, remove the document from MongoDB
+            fs.delete_one({"_id": song_info_id})
             return jsonify({"message": "Error triggering DAG execution"}), 500
     else:
         return jsonify({"message": "Missing title or text parameters"}), 400
