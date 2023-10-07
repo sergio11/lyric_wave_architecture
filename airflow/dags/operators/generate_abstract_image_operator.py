@@ -1,27 +1,58 @@
-# generate_abstract_image_operator.py
 from airflow.models import BaseOperator
 from airflow.utils.decorators import apply_defaults
 from PIL import Image, ImageDraw
 import hashlib
 import random
 from pymongo import MongoClient
-import gridfs
 import io
 import logging
+from minio import Minio
+from minio.error import S3Error
+from bson import ObjectId
 
 class GenerateAbstractImageOperator(BaseOperator):
+
+    """
+    Generates an abstract image based on the song text associated with a melody,
+    stores the image in MinIO, and updates the MongoDB document with the MinIO URL.
+
+    :param mongo_uri: MongoDB connection URI.
+    :type mongo_uri: str
+    :param mongo_db: MongoDB database name.
+    :type mongo_db: str
+    :param mongo_db_collection: MongoDB collection name for storing melody information.
+    :type mongo_db_collection: str
+    :param minio_endpoint: MinIO server endpoint URL.
+    :type minio_endpoint: str
+    :param minio_access_key: MinIO access key.
+    :type minio_access_key: str
+    :param minio_secret_key: MinIO secret key.
+    :type minio_secret_key: str
+    :param minio_bucket_name: MinIO bucket name for storing generated images.
+    :type minio_bucket_name: str
+    """
+
+    
     @apply_defaults
     def __init__(
         self,
         mongo_uri,
         mongo_db,
         mongo_db_collection,
+        minio_endpoint,
+        minio_access_key,
+        minio_secret_key,
+        minio_bucket_name,
         *args, **kwargs
     ):
         super().__init__(*args, **kwargs)
         self.mongo_uri = mongo_uri
         self.mongo_db = mongo_db
         self.mongo_db_collection = mongo_db_collection
+        self.minio_endpoint = minio_endpoint
+        self.minio_access_key = minio_access_key
+        self.minio_secret_key = minio_secret_key
+        self.minio_bucket_name = minio_bucket_name
 
     def execute(self, context):
         logging.info("Starting execution of GenerateAbstractImageOperator")
@@ -33,9 +64,9 @@ class GenerateAbstractImageOperator(BaseOperator):
         # Connect to MongoDB and retrieve song text
         with MongoClient(self.mongo_uri) as client:
             db = client[self.mongo_db]
-            fs = gridfs.GridFS(db, collection=self.mongo_db_collection)
+            melodies_collection = db[self.mongo_db_collection]
 
-            melody_info = fs.find_one({"_id": melody_id})
+            melody_info = melodies_collection.find_one({"_id": ObjectId(melody_id)})
             song_text = melody_info.get("song_text")
             logging.info(f"Retrieved song text for melody_id: {melody_id}")
 
@@ -73,14 +104,38 @@ class GenerateAbstractImageOperator(BaseOperator):
         image.save(image_bytes, format="PNG")
         image_bytes.seek(0)
 
-        # Store the generated abstract image in MongoDB using GridFS
-        with MongoClient(self.mongo_uri) as client:
-            db = client[self.mongo_db]
-            fs = gridfs.GridFS(db, collection='melodies')
+        # Store the generated abstract image in MinIO
+        try:
+            minio_client = Minio(
+                self.minio_endpoint,
+                access_key=self.minio_access_key,
+                secret_key=self.minio_secret_key,
+            )
+            image_object_name = f"{melody_id}_abstract_image.png"
+            minio_client.put_object(
+                bucket_name=self.minio_bucket_name,
+                object_name=image_object_name,
+                data=image_bytes,
+                length=len(image_bytes.getvalue()),
+                content_type="image/png",
+            )
+            logging.info(f"Abstract image stored in MinIO as {image_object_name}")
+        except S3Error as e:
+            logging.error(f"Error storing abstract image in MinIO: {e}")
 
-            abstract_image_id = fs.put(image_bytes, filename=f"{melody_id}_abstract_image.png", content_type="image/png")
-            logging.info(f"Abstract image stored in MongoDB with ID: {abstract_image_id}")
+        # Update the MongoDB document with the MinIO URL of the image
+        image_url = minio_client.presigned_get_object(
+            self.minio_bucket_name, image_object_name
+        )
+        logging.info(f"Image URL: {image_url}")
+
+        # Update the document with the image URL
+        melodies_collection.update_one(
+            {"_id": ObjectId(melody_id)},
+            {"$set": {"abstract_image_url": image_url}},
+        )
+        logging.info("Updated MongoDB document with image URL")
 
         logging.info("GenerateAbstractImageOperator execution completed")
 
-        return {"melody_id": str(melody_id), "abstract_image_id": str(abstract_image_id)}
+        return {"melody_id": str(melody_id), "abstract_image_url": image_url}
