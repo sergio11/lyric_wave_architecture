@@ -1,3 +1,4 @@
-flask==2.1.1
-requests==2.26.0
-apache-airflow==2.7.1
+flask==3.0.0
+requests==2.31.0
+pymongo==4.5.0
+gunicorn

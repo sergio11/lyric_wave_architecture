@@ -1,0 +1,37 @@
+{
+    "info": {
+      "name": "Song Generation API",
+      "description": "Collection for interacting with the Flask API for song generation.",
+      "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+      {
+        "name": "Generate Song",
+        "request": {
+          "method": "POST",
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+          "body": {
+            "mode": "raw",
+            "raw": "{\n  \"title\": \"Sample Song\",\n  \"text\": \"Lyrics of the sample song.\"\n}"
+          },
+          "url": {
+            "raw": "http://localhost:8086/generate_song",
+            "protocol": "http",
+            "host": [
+              "localhost"
+            ],
+            "port": "8086",
+            "path": [
+              "generate_song"
+            ]
+          }
+        },
+        "response": []
+      }
+    ]
+  }  

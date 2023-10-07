@@ -16,5 +16,5 @@ COPY app.py app.py
 # Expose the port where the API will run
 EXPOSE 5000
 
-# Start the API when the container is run
-CMD ["python", "app.py"]
+# Run the API with Gunicorn
+CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:5000", "app:app"]
