@@ -1,18 +1,18 @@
 from datetime import datetime
 from airflow import DAG
-from airflow.operators.dummy_operator import DummyOperator
 import importlib
 import os
 
+# Define default arguments for the DAG
 default_args = {
     'owner': 'airflow',
     'start_date': datetime(2023, 1, 1),
     'retries': 1,
 }
 
+# Create the DAG with the specified default arguments
 with DAG('music_generation_dag', default_args=default_args, default_view="graph", schedule_interval=None, catchup=False) as dag:
-    start_task = DummyOperator(task_id='start_task')
-
+    # Import the necessary operators from external modules
     operators_module = importlib.import_module('operators.generate_melody_operator')
     GenerateMelodyOperator = operators_module.GenerateMelodyOperator
     operators_module = importlib.import_module('operators.generate_voice_operator')
@@ -22,6 +22,7 @@ with DAG('music_generation_dag', default_args=default_args, default_view="graph"
     operators_module = importlib.import_module('operators.generate_abstract_image_operator')
     GenerateAbstractImageOperator = operators_module.GenerateAbstractImageOperator
 
+    # Define the tasks for each operator
     generate_melody_task = GenerateMelodyOperator(
         task_id='generate_melody_task',
         model_checkpoint_url=os.environ.get("MODEL_CHECKPOINT_URL"),
@@ -68,6 +69,5 @@ with DAG('music_generation_dag', default_args=default_args, default_view="graph"
         minio_bucket_name=os.environ.get("MINIO_BUCKET_NAME")
     )
 
-    end_task = DummyOperator(task_id='end_task')
-
-    start_task >> generate_melody_task >> generate_voice_task >> combine_audio_task >> generate_abstract_image_task >> end_task
+    # Define task dependencies by chaining the tasks in sequence
+    generate_melody_task >> generate_voice_task >> combine_audio_task >> generate_abstract_image_task
