@@ -20,6 +20,10 @@ MONGO_COLLECTION = os.environ.get("MONGO_DB_COLLECTION")
 AIRFLOW_DAG_ID = os.environ.get("AIRFLOW_DAG_ID")
 AIRFLOW_API_URL = os.environ.get("AIRFLOW_API_URL")
 
+# Get API Executor username and password from environment variables
+API_EXECUTOR_USERNAME = os.environ.get("API_EXECUTOR_USERNAME")
+API_EXECUTOR_PASSWORD = os.environ.get("API_EXECUTOR_PASSWORD")
+
 # Connect to MongoDB using the provided URI
 mongo_client = MongoClient(MONGO_URI)
 db = mongo_client[MONGO_DB]
@@ -82,14 +86,17 @@ def generate_song():
                 },
                 "dag_run_id": dag_run_id,
                 "logical_date": logical_date_str,
-                "note": description
+                "note": f"Song generation for DAG run ID: {dag_run_id}"
             }
 
             # Trigger an Airflow DAG execution by sending a POST request
             response = requests.post(
                 airflow_dag_url,
                 json=dag_run_conf,
-                headers={"Content-Type": "application/json"}
+                headers={
+                    "Content-Type": "application/json",
+                    "Authorization": f"Basic {API_EXECUTOR_USERNAME}:{API_EXECUTOR_PASSWORD}"
+                }
             )
 
             if response.status_code == 200:
@@ -104,7 +111,7 @@ def generate_song():
             else:
                 # If DAG execution failed, remove the document from MongoDB
                 fs.delete_one({"_id": song_info_id})
-                logger.error("Error triggering DAG execution")
+                logger.error(f"Error triggering DAG execution: {response.text}")
                 return jsonify({"message": "Error triggering DAG execution"}), 500
         else:
             logger.error("Missing title or text parameters")
