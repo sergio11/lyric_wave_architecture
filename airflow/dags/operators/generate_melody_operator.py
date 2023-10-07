@@ -8,19 +8,8 @@ from bson import ObjectId
 from pymongo import MongoClient
 from minio import Minio
 from minio.error import S3Error
+import importlib
 import logging
-
-def lazy_import_magenta_music():
-    global mm
-    if mm is None:
-        import magenta.music as magenta_music
-        mm = magenta_music
-
-def lazy_import_magenta_midi_io():
-    global midi_io
-    if midi_io is None:
-        from magenta.music import midi_io as magenta_midi_io
-        midi_io = magenta_midi_io
 
 
 class GenerateMelodyOperator(BaseOperator):
@@ -90,7 +79,7 @@ class GenerateMelodyOperator(BaseOperator):
         if not os.path.exists(self.model_output_dir):
             self.log.info('Starting model download...')
             # Download model files using the provided URL
-            self.download_checkpoint(self.model_checkpoint_url, self.model_output_dir)
+            self._download_checkpoint(self.model_checkpoint_url, self.model_output_dir)
             self.log.info('Model download complete.')
 
         # Get the configuration passed to the DAG from the execution context
@@ -115,7 +104,7 @@ class GenerateMelodyOperator(BaseOperator):
         logging.info(f"Generating melody for '{song_title}'")
 
         # Initialize the MusicVAE model (with lazy import)
-        lazy_import_magenta_music()
+        mm = importlib.import_module('magenta.music')
         model = mm.MusicVAE(self.model_output_dir)
 
         # Encode the text into a melody and generate the melody
@@ -124,7 +113,7 @@ class GenerateMelodyOperator(BaseOperator):
         logging.info("Melody generated successfully")
 
         # Convert the generated melody to a MIDI file in memory
-        lazy_import_magenta_midi_io()
+        midi_io = importlib.import_module('magenta.music.midi_io')
         midi_data = midi_io.sequence_proto_to_midi_file(generated_melody)
 
         # Store the MIDI file in MinIO
