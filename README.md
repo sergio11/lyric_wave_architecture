@@ -17,18 +17,19 @@ LyricWave is a cutting-edge music generation platform that seamlessly fuses song
   <img src="https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white" />
 </p>
 
-## Features
-- **Melody Crafting**: Harnessing the capabilities of Magenta AI, LyricWave crafts melodies that resonate with the sentiment and tone of song lyrics, producing intricate musical arrangements that complement the text's emotional content.
+## ✨ Key Features
 
-- **Voice Synthesis**: By employing innovative text-to-speech techniques, LyricWave generates synthetic vocal tracks that resonate with the song's lyrical essence, infusing the composition with expressive and realistic vocals.
+- **🎵 Melody Crafting**: LyricWave, powered by Magenta AI, creates melodies that match the sentiment and tone of song lyrics, resulting in intricate musical arrangements that resonate with the text's emotional depth.
 
-- **Harmonious Fusion**: LyricWave masterfully combines the generated melodies and synthetic voices to produce harmonious MP3 tracks, culminating in an immersive listening experience that encapsulates both musical and lyrical dimensions.
+- **🎤 Voice Synthesis**: Utilizing innovative text-to-speech techniques, LyricWave generates synthetic vocal tracks that capture the lyrical essence, infusing compositions with expressive and lifelike vocals.
 
-- **Abstract Visuals**: In addition to its auditory allure, LyricWave generates captivating abstract images inspired by the song's lyrical content, providing a unique visual representation of the musical narrative.
+- **🎶 Harmonious Fusion**: LyricWave seamlessly blends generated melodies and synthetic voices, producing harmonious MP3 tracks that offer an immersive listening experience, combining both musical and lyrical elements.
 
-- **MongoDB Integration**: LyricWave seamlessly integrates with MongoDB to store comprehensive details about the generated songs, including melodies, vocals, abstract images, and metadata.
+- **🎨 Abstract Visuals**: In addition to its auditory allure, LyricWave generates captivating abstract images inspired by the song's lyrical content, offering a unique visual representation of the musical narrative.
 
-- **Docker-Powered Workflow**: The project is encapsulated within a Docker Compose environment, streamlining the deployment and orchestration of the entire music generation pipeline.
+- **📦 MongoDB Integration**: LyricWave effortlessly integrates with MongoDB, storing comprehensive details about generated songs, including melodies, vocals, abstract images, and metadata.
+
+- **🐳 Docker-Powered Workflow**: The project is enclosed within a Docker Compose environment, simplifying deployment and orchestration of the entire music generation pipeline, ensuring a smooth workflow.
 
 ## Technologies Used
 - **Apache Airflow**: An extensible platform for orchestrating complex workflows, Airflow serves as the backbone for scheduling and managing the multi-step music generation process.
