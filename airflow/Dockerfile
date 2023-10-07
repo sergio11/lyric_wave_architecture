@@ -32,6 +32,7 @@ RUN set -ex \
         libpq-dev \
         git \
         pkg-config \
+        libasound2-dev \
     ' \
     && apt-get update -yqq \
     && apt-get upgrade -yqq \

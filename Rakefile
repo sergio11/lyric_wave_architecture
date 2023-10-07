@@ -47,6 +47,18 @@ task :build_and_push_airflow_image do
   puts "Apache Airflow image built and pushed successfully."
 end
 
+desc "Build and push Flask API Docker image"
+task :build_and_push_api_image do
+  api_image_name = "ssanchez11/lyric_wave_api:0.0.1"
+  api_directory = "./api"  # Directorio de tu API Flask
+  puts "Building Flask API Docker image..."
+  build_command = "docker build -t #{api_image_name} #{api_directory}"
+  system(build_command)
+  puts "Pushing Flask API Docker image to DockerHub..."
+  push_command = "docker push #{api_image_name}"
+  system(push_command)
+  puts "Flask API image built and pushed successfully."
+end
 
 desc "Cleaning Evironment Task"
 task :cleaning_environment_task do 

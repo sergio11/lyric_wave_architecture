@@ -20,11 +20,38 @@ services:
   # MongoDB container for Apache Airflow
   mongo:
     container_name: airflow_mongo
-    image: mongo:4
+    image: mongo
+    env_file:
+      - .env
     ports:
       - "27017:27017"
-    volumes:
-      - mongo_data:/data/db
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_ROOT_USER}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_ROOT_PASSWORD}
+      - MONGO_INITDB_DATABASE=${MONGO_DB}
+    networks:
+      - airflow_network
+
+  # Web-based MongoDB admin interface, written with Node.js and express
+  mongo-express:
+    image: mongo-express
+    container_name: airflow_mongo_express
+    restart: on-failure
+    env_file:
+      - .env
+    environment:
+      - ME_CONFIG_MONGODB_SERVER=airflow_mongo
+      - ME_CONFIG_MONGODB_PORT=27017
+      - ME_CONFIG_MONGODB_ENABLE_ADMIN=true
+      - ME_CONFIG_MONGODB_AUTH_DATABASE=admin
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=${MONGO_ROOT_USER}
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=${MONGO_ROOT_PASSWORD}
+      - ME_CONFIG_BASICAUTH_USERNAME=${MONGOEXPRESS_LOGIN}
+      - ME_CONFIG_BASICAUTH_PASSWORD=${MONGOEXPRESS_PASSWORD}
+    depends_on:
+      - mongo
+    ports:
+      - "8087:8081"
     networks:
       - airflow_network
 
@@ -148,7 +175,7 @@ services:
     networks:
       - airflow_network
 
-   # Apache Airflow worker containers
+  # Apache Airflow worker containers
   worker:
     image: ssanchez11/lyric_wave_apache_airflow:0.0.1
     container_name: airflow_worker_1
@@ -170,5 +197,17 @@ services:
       POSTGRES_HOST: ${POSTGRES_HOST}
       REDIS_HOST: ${REDIS_HOST}
     command: worker
+    networks:
+      - airflow_network
+
+
+  api_service_1:
+    image: ssanchez11/lyric_wave_api:0.0.1
+    container_name: api_service_1
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - "8086:5000"
     networks:
       - airflow_network

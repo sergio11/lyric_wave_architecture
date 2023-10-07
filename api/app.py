@@ -1,17 +1,19 @@
 from flask import Flask, request, jsonify, Response
 import os
-from airflow.api.client.local_client import Client
+import requests
 from pymongo import MongoClient
 from bson import ObjectId
+import uuid
+from datetime import datetime, timedelta
 
 # Get MongoDB connection details from environment variables
 MONGO_URI = os.environ.get("MONGO_URI")
 MONGO_DB = os.environ.get("MONGO_DB")
-MONGO_COLLECTION = os.environ.get("MONGO_COLLECTION")
-AIRFLOW_DAG_ID = "audio_streaming_dag"
+MONGO_COLLECTION = os.environ.get("MONGO_DB_COLLECTION")
 
-# Initialize an Airflow Client
-client = Client(None, None)
+# Get Airflow DAG ID and API URL from environment variables
+AIRFLOW_DAG_ID = os.environ.get("AIRFLOW_DAG_ID")
+AIRFLOW_API_URL = os.environ.get("AIRFLOW_API_URL")
 
 # Connect to MongoDB using the provided URI
 mongo_client = MongoClient(MONGO_URI)
@@ -29,17 +31,54 @@ def generate_song():
     # Get song title and text from the request's JSON data
     song_title = request.json.get('title')
     song_text = request.json.get('text')
+    description = request.json.get('description')
 
     if song_title and song_text:
+        # Generate a unique DAG run ID
+        dag_run_id = str(uuid.uuid4())
+
+        # Calculate the logical date 2 minutes from now
+        logical_date = datetime.utcnow() + timedelta(minutes=2)
+        logical_date_str = logical_date.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+
         # Configure DAG run parameters
         dag_run_conf = {
-            "song_title": song_title,
-            "song_text": song_text
+            "conf": {
+                "song_title": song_title,
+                "song_text": song_text,
+                "description": description
+            },
+            "dag_run_id": dag_run_id,
+            "logical_date": logical_date_str,
+            "note": description
         }
 
-        # Trigger an Airflow DAG execution
-        client.trigger_dag(dag_id=AIRFLOW_DAG_ID, conf=dag_run_conf)
-        return jsonify({"message": "DAG execution triggered successfully"}), 200
+        # Build the URL to trigger the DAG execution
+        airflow_dag_url = f"{AIRFLOW_API_URL}/dags/{AIRFLOW_DAG_ID}/dagRuns"
+
+        # Trigger an Airflow DAG execution by sending a POST request
+        response = requests.post(
+            airflow_dag_url,
+            json=dag_run_conf,
+            headers={"Content-Type": "application/json"}
+        )
+
+        if response.status_code == 200:
+            # Create a BSON document with song information
+            song_info = {
+                "song_title": song_title,
+                "song_text": song_text,
+                "description": description,
+                "dag_run_id": dag_run_id,
+                "logical_date": logical_date_str
+            }
+
+            # Insert the BSON document into MongoDB collection
+            fs.insert_one(song_info)
+
+            return jsonify({"message": "DAG execution triggered successfully"}), 200
+        else:
+            return jsonify({"message": "Error triggering DAG execution"}), 500
     else:
         return jsonify({"message": "Missing title or text parameters"}), 400
 
