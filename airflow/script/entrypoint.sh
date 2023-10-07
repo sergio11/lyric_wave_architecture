@@ -119,6 +119,7 @@ case "$1" in
     fi
     exec airflow webserver
     exec airflow users create -r Admin -u dreamsoftware -e dreamsoftware@lirywave.com -f Sergio -l Sánchez -p dreamsoftware00
+    exec airflow users create -r User -u api_executor -e api_executor@lirywave.com -f API -l Executor -p dreamsoftware00
     ;;
   worker|flower)
     # Give the webserver time to run initdb.
