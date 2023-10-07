@@ -90,6 +90,7 @@ services:
       REDIS_HOST: ${REDIS_HOST}
     volumes:
       - ./airflow/dags:/usr/local/airflow/dags
+      - ./airflow/packages:/usr/local/airflow/packages
     ports:
       - "8080:8080"
     command: webserver
@@ -114,6 +115,8 @@ services:
       EXECUTOR: ${EXECUTOR}
     ports:
       - "8081:5555"
+      - "8082:8080"
+      - "8083:8793"
     command: flower
     networks:
       - airflow_network
@@ -129,6 +132,7 @@ services:
       - webserver
     volumes:
       - ./airflow/dags:/usr/local/airflow/dags
+      - ./airflow/packages:/usr/local/airflow/packages
     environment:
       LOAD_EX: ${LOAD_EX}
       FERNET_KEY: ${FERNET_KEY}
@@ -138,6 +142,8 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_HOST: ${POSTGRES_HOST}
       REDIS_HOST: ${REDIS_HOST}
+    ports:
+      - "8084:8080"
     command: scheduler
     networks:
       - airflow_network
@@ -153,6 +159,8 @@ services:
       - scheduler
     volumes:
       - ./airflow/dags:/usr/local/airflow/dags
+      - ./airflow/packages:/usr/local/airflow/packages
+      - ./magentadata:${MODEL_OUTPUT_DIR}
     environment:
       FERNET_KEY: ${FERNET_KEY}
       EXECUTOR: ${EXECUTOR}
@@ -164,50 +172,3 @@ services:
     command: worker
     networks:
       - airflow_network
-
-  # Additional Apache Airflow worker containers
-  worker_2:
-    image: ssanchez11/lyric_wave_apache_airflow:0.0.1
-    container_name: airflow_worker_2
-    restart: always
-    env_file:
-      - .env
-    depends_on:
-      - scheduler
-    volumes:
-      - ./airflow/dags:/usr/local/airflow/dags
-    environment:
-      FERNET_KEY: ${FERNET_KEY}
-      EXECUTOR: ${EXECUTOR}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_HOST: ${POSTGRES_HOST}
-      REDIS_HOST: ${REDIS_HOST}
-    command: worker
-    networks:
-      - airflow_network
-
-  worker_3:
-    image: ssanchez11/lyric_wave_apache_airflow:0.0.1
-    container_name: airflow_worker_3
-    env_file:
-      - .env
-    restart: always
-    depends_on:
-      - scheduler
-    volumes:
-      - ./airflow/dags:/usr/local/airflow/dags
-    environment:
-      FERNET_KEY: ${FERNET_KEY}
-      EXECUTOR: ${EXECUTOR}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_HOST: ${POSTGRES_HOST}
-      REDIS_HOST: ${REDIS_HOST}
-    command: worker
-    networks:
-      - airflow_network
-
- 

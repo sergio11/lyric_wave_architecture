@@ -20,11 +20,13 @@ def lazy_import_magenta_midi_io():
         from magenta.music import midi_io as magenta_midi_io
         midi_io = magenta_midi_io
 
+
 class GenerateMelodyOperator(BaseOperator):
     @apply_defaults
     def __init__(
         self,
         model_checkpoint_url,
+        model_output_dir,
         mongo_uri,
         mongo_db,
         mongo_db_collection,
@@ -35,7 +37,7 @@ class GenerateMelodyOperator(BaseOperator):
         self.mongo_uri = mongo_uri
         self.mongo_db = mongo_db
         self.mongo_db_collection = mongo_db_collection
-        self.model_output_dir = '/magenta/model'
+        self.model_output_dir = model_output_dir
 
     def _join_url(self, *parts):
         return '/'.join(parts)

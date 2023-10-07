@@ -1,4 +1,4 @@
-FROM python:3.7-slim-buster
+FROM python:3.8-slim-buster
 LABEL maintainer="Sergio Sánchez Sánchez"
 
 # Never prompt the user for choices on installation/configuration of packages
@@ -6,7 +6,7 @@ ENV DEBIAN_FRONTEND noninteractive
 ENV TERM linux
 
 # Airflow
-ARG AIRFLOW_VERSION=2.2.3
+ARG AIRFLOW_VERSION=2.7.1
 ARG AIRFLOW_USER_HOME=/usr/local/airflow
 ARG AIRFLOW_DEPS=""
 ARG PYTHON_DEPS=""
@@ -31,6 +31,7 @@ RUN set -ex \
         libffi-dev \
         libpq-dev \
         git \
+        pkg-config \
     ' \
     && apt-get update -yqq \
     && apt-get upgrade -yqq \
@@ -51,7 +52,7 @@ RUN set -ex \
     && update-locale LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 \
     && useradd -ms /bin/bash -d ${AIRFLOW_USER_HOME} airflow \
     && pip install -U pip setuptools wheel \
-    && pip install apache-airflow[crypto,celery,postgres,hive,jdbc,mysql,ssh${AIRFLOW_DEPS:+,}${AIRFLOW_DEPS}]==${AIRFLOW_VERSION} \
+    && pip install apache-airflow[crypto,celery,postgres,jdbc,mysql,ssh${AIRFLOW_DEPS:+,}${AIRFLOW_DEPS}]==${AIRFLOW_VERSION} \
     && if [ -n "${PYTHON_DEPS}" ]; then pip install ${PYTHON_DEPS}; fi \
     && apt-get purge --auto-remove -yqq $buildDeps \
     && apt-get autoremove -yqq --purge \
@@ -66,14 +67,14 @@ RUN set -ex \
 
 WORKDIR ${AIRFLOW_USER_HOME}
 
-COPY ./requirements.txt requirements.txt
+COPY ./packages/requirements.txt packages/requirements.txt
 COPY ./script/entrypoint.sh entrypoint.sh
 COPY ./config/airflow.cfg airflow.cfg
 
 RUN dos2unix entrypoint.sh
 RUN chmod +x entrypoint.sh
 
-RUN pip install -r requirements.txt
+RUN pip install -r ./packages/requirements.txt
 
 RUN uname -a
 RUN pwd
