@@ -1,7 +1,17 @@
 # LyricWave: AI-Powered Music Generation Platform
 
-## Overview
 LyricWave is a cutting-edge music generation platform that seamlessly fuses song lyrics with original melodies and synthetic vocals, resulting in personalized and enchanting MP3 and MIDI tracks. Leveraging the robust capabilities of Apache Airflow and the creative prowess of Magenta AI, LyricWave transforms mere text into fully-fledged musical compositions, offering a unique and captivating auditory experience.
+
+<p align="center">
+  <img src="https://img.shields.io/badge/flask-%23000.svg?style=for-the-badge&logo=flask&logoColor=white" />
+  <img src="https://img.shields.io/badge/Apache%20Airflow-017CEE?style=for-the-badge&logo=Apache%20Airflow&logoColor=white" />
+  <img src="https://img.shields.io/badge/gunicorn-%298729.svg?style=for-the-badge&logo=gunicorn&logoColor=white" />
+  <img src="https://img.shields.io/badge/redis-%23DD0031.svg?style=for-the-badge&logo=redis&logoColor=white" />
+  <img src="https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54" />
+  <img src="https://img.shields.io/badge/postgres-%23316192.svg?style=for-the-badge&logo=postgresql&logoColor=white" />
+  <img src="https://img.shields.io/badge/MongoDB-%234ea94b.svg?style=for-the-badge&logo=mongodb&logoColor=white" />
+  <img src="https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white" />
+</p>
 
 ## Features
 - **Melody Crafting**: Harnessing the capabilities of Magenta AI, LyricWave crafts melodies that resonate with the sentiment and tone of song lyrics, producing intricate musical arrangements that complement the text's emotional content.
