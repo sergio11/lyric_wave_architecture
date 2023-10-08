@@ -5,6 +5,7 @@ from pymongo import MongoClient
 from bson import ObjectId
 import uuid
 from datetime import datetime, timedelta
+import base64
 import logging
 
 # Configure logging
@@ -89,14 +90,21 @@ def generate_song():
                 "note": f"Song generation for DAG run ID: {dag_run_id}"
             }
 
+            # Encode the API executor's username and password in Base64
+            credentials = f"{API_EXECUTOR_USERNAME}:{API_EXECUTOR_PASSWORD}"
+            credentials_base64 = base64.b64encode(credentials.encode()).decode()
+
+            # Create headers for the request
+            headers = {
+                "Content-Type": "application/json",
+                "Authorization": f"Basic {credentials_base64}"
+            }
+
             # Trigger an Airflow DAG execution by sending a POST request
             response = requests.post(
                 airflow_dag_url,
                 json=dag_run_conf,
-                headers={
-                    "Content-Type": "application/json",
-                    "Authorization": f"Basic {API_EXECUTOR_USERNAME}:{API_EXECUTOR_PASSWORD}"
-                }
+                headers=headers
             )
 
             if response.status_code == 200:
@@ -107,18 +115,50 @@ def generate_song():
                 )
 
                 logger.info("DAG execution triggered successfully")
-                return jsonify({"message": "DAG execution triggered successfully"}), 200
+                response_data = {
+                    "status": "success",
+                    "code": 200,
+                    "message": "Song generated and scheduled successfully.",
+                    "song_info": {
+                        "song_title": song_title,
+                        "song_text": song_text,
+                        "description": description,
+                        "song_info_id": str(song_info_id),
+                        "planned_date": logical_date_str
+                    }
+                }
+                return jsonify(response_data), 200
             else:
                 # If DAG execution failed, remove the document from MongoDB
                 fs.delete_one({"_id": song_info_id})
                 logger.error(f"Error triggering DAG execution: {response.text}")
-                return jsonify({"message": "Error triggering DAG execution"}), 500
+                logger.error(f"HTTP Request Headers: {headers}")  # Log the request headers
+                logger.error(f"HTTP Request Body: {dag_run_conf}")  # Log the request body
+                response_data = {
+                    "status": "error",
+                    "code": response.status_code,
+                    "message": "Error triggering DAG execution.",
+                    "song_info": None
+                }
+                return jsonify(response_data), 500
         else:
             logger.error("Missing title or text parameters")
-            return jsonify({"message": "Missing title or text parameters"}), 400
+            response_data = {
+                "status": "error",
+                "code": 400,
+                "message": "Missing title or text parameters.",
+                "song_info": None
+            }
+            return jsonify(response_data), 400
     except Exception as e:
         logger.error(f"An error occurred: {str(e)}")
-        return jsonify({"message": "An internal server error occurred"}), 500
+        response_data = {
+            "status": "error",
+            "code": 500,
+            "message": "An internal server error occurred.",
+            "song_info": None
+        }
+        return jsonify(response_data), 500
 
 # API endpoint for streaming audio by song ID
 @app.route('/stream_audio/<song_id>')
