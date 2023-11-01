@@ -1,14 +1,12 @@
-from airflow.models import BaseOperator
 from airflow.utils.decorators import apply_defaults
 from pydub import AudioSegment
+from operators.base_custom_operator import BaseCustomOperator
 from pymongo import MongoClient
 from bson import ObjectId
-from minio import Minio
 from minio.error import S3Error
 import io
-import logging
 
-class CombineAudioOperator(BaseOperator):
+class CombineAudioOperator(BaseCustomOperator):
 
     """
     CombineAudioOperator combines a melody MIDI file and voice audio file,
@@ -30,35 +28,19 @@ class CombineAudioOperator(BaseOperator):
     :param minio_bucket_name: MinIO bucket name.
     :type minio_bucket_name: str
     """
-
-    
     @apply_defaults
     def __init__(
         self,
-        mongo_uri,
-        mongo_db,
-        mongo_db_collection,
-        minio_endpoint,
-        minio_access_key,
-        minio_secret_key,
-        minio_bucket_name,
         *args, **kwargs
     ):
         super().__init__(*args, **kwargs)
-        self.mongo_uri = mongo_uri
-        self.mongo_db = mongo_db
-        self.mongo_db_collection = mongo_db_collection
-        self.minio_endpoint = minio_endpoint
-        self.minio_access_key = minio_access_key
-        self.minio_secret_key = minio_secret_key
-        self.minio_bucket_name = minio_bucket_name
 
     def execute(self, context):
-        logging.info("Starting execution of CombineAudioOperator")
+        self._log_to_mongodb("Starting execution of CombineAudioOperator", context, "INFO")
 
         # Retrieve melody_id from the previous task using XCom
         melody_id = context['task_instance'].xcom_pull(task_ids='generate_voice_task')['melody_id']
-        logging.info(f"Retrieved melody_id: {melody_id}")
+        self._log_to_mongodb(f"Retrieved melody_id: {melody_id}", context, "INFO")
 
         # Connect to MongoDB and retrieve melody MIDI and voice audio
         with MongoClient(self.mongo_uri) as client:
@@ -68,15 +50,11 @@ class CombineAudioOperator(BaseOperator):
             melody_info = collection.find_one({"_id": ObjectId(melody_id)})
             melody_wav_file_path = melody_info.get("melody_wav_file_path")
             voice_map3_audio_path = melody_info.get("voice_map3_audio_path")
-            logging.info(f"Retrieved melody WAV and voice audio paths for melody_id: {melody_id}")
+            self._log_to_mongodb(f"Retrieved melody WAV and voice audio paths for melody_id: {melody_id}", context, "INFO")
 
-        # Connect to MinIO and download the MIDI and voice audio
-        minio_client = Minio(
-            self.minio_endpoint,
-            access_key=self.minio_access_key,
-            secret_key=self.minio_secret_key,
-            secure=False  # Change to True for secure connection (HTTPS)
-        )
+        # Connect to MinIO and download the WAV and voice audio
+        # Get MinIO client
+        minio_client = self._get_minio_client(context)
 
         try:
             with io.BytesIO() as melody_wav_data:
@@ -87,7 +65,7 @@ class CombineAudioOperator(BaseOperator):
                 minio_client.fget_object(self.minio_bucket_name, voice_map3_audio_path, voice_audio_data)
                 voice_audio_data.seek(0)
 
-            logging.info(f"Downloaded melody WAV and voice audio for melody_id: {melody_id}")
+            self._log_to_mongodb(f"Downloaded melody WAV and voice audio for melody_id: {melody_id}", context, "INFO")
 
             # Load the melody WAV and voice audio files
             melody = AudioSegment.from_file(melody_wav_data)
@@ -105,7 +83,7 @@ class CombineAudioOperator(BaseOperator):
 
             # Combine the melody and voice
             combined_audio = melody.overlay(voice)
-            logging.info("Audio files combined")
+            self._log_to_mongodb("Audio files combined", context, "INFO")
 
             # Export the combined audio as bytes
             with io.BytesIO() as combined_audio_data:
@@ -120,7 +98,7 @@ class CombineAudioOperator(BaseOperator):
                 len(combined_audio_data),
                 content_type="audio/mpeg"
             )
-            logging.info(f"Combined audio stored in MinIO for melody_id: {melody_id}")
+            self._log_to_mongodb(f"Combined audio stored in MinIO for melody_id: {melody_id}", context, "INFO")
 
             # Update the BSON document with the MinIO object path
             melody_info['combined_audio_path'] = f"{melody_id}_combined.mp3"
@@ -128,10 +106,10 @@ class CombineAudioOperator(BaseOperator):
             # Update the document in MongoDB
             collection.update_one({"_id": melody_info['_id']}, {"$set": melody_info})
 
-            logging.info("CombineAudioOperator execution completed")
+            self._log_to_mongodb("CombineAudioOperator execution completed", context, "INFO")
 
         except S3Error as e:
-            logging.error(f"Error storing or retrieving audio from MinIO: {e}")
+            self._log_to_mongodb(f"Error storing or retrieving audio from MinIO: {e}", context, "INFO")
             raise
 
         return {"melody_id": str(melody_id)}

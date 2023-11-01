@@ -1,16 +1,13 @@
-from airflow.models import BaseOperator
 from airflow.utils.decorators import apply_defaults
 from PIL import Image, ImageDraw
 import hashlib
 import random
+from operators.base_custom_operator import BaseCustomOperator
 from pymongo import MongoClient
 import io
-import logging
-from minio import Minio
-from minio.error import S3Error
 from bson import ObjectId
 
-class GenerateAbstractImageOperator(BaseOperator):
+class GenerateAbstractImageOperator(BaseCustomOperator):
 
     """
     Generates an abstract image based on the song text associated with a melody,
@@ -31,35 +28,19 @@ class GenerateAbstractImageOperator(BaseOperator):
     :param minio_bucket_name: MinIO bucket name for storing generated images.
     :type minio_bucket_name: str
     """
-
-    
     @apply_defaults
     def __init__(
         self,
-        mongo_uri,
-        mongo_db,
-        mongo_db_collection,
-        minio_endpoint,
-        minio_access_key,
-        minio_secret_key,
-        minio_bucket_name,
         *args, **kwargs
     ):
         super().__init__(*args, **kwargs)
-        self.mongo_uri = mongo_uri
-        self.mongo_db = mongo_db
-        self.mongo_db_collection = mongo_db_collection
-        self.minio_endpoint = minio_endpoint
-        self.minio_access_key = minio_access_key
-        self.minio_secret_key = minio_secret_key
-        self.minio_bucket_name = minio_bucket_name
 
     def execute(self, context):
-        logging.info("Starting execution of GenerateAbstractImageOperator")
+        self._log_to_mongodb("Starting execution of GenerateAbstractImageOperator", context, "INFO")
 
         # Retrieve melody_id from the previous task using XCom
         melody_id = context['task_instance'].xcom_pull(task_ids='generate_voice_task')['melody_id']
-        logging.info(f"Retrieved melody_id: {melody_id}")
+        self._log_to_mongodb(f"Retrieved melody_id: {melody_id}", context, "INFO")
 
         # Connect to MongoDB and retrieve song text
         with MongoClient(self.mongo_uri) as client:
@@ -68,7 +49,7 @@ class GenerateAbstractImageOperator(BaseOperator):
 
             melody_info = melodies_collection.find_one({"_id": ObjectId(melody_id)})
             song_text = melody_info.get("song_text")
-            logging.info(f"Retrieved song text for melody_id: {melody_id}")
+            self._log_to_mongodb(f"Retrieved song text for melody_id: {melody_id}", context, "INFO")
 
         # Define image dimensions
         image_size = (800, 600)
@@ -105,12 +86,9 @@ class GenerateAbstractImageOperator(BaseOperator):
         image_bytes.seek(0)
 
         # Store the generated abstract image in MinIO
+        # Get MinIO client
+        minio_client = self._get_minio_client(context)
         try:
-            minio_client = Minio(
-                self.minio_endpoint,
-                access_key=self.minio_access_key,
-                secret_key=self.minio_secret_key,
-            )
             image_object_name = f"{melody_id}_abstract_image.png"
             minio_client.put_object(
                 bucket_name=self.minio_bucket_name,
@@ -119,23 +97,22 @@ class GenerateAbstractImageOperator(BaseOperator):
                 length=len(image_bytes.getvalue()),
                 content_type="image/png",
             )
-            logging.info(f"Abstract image stored in MinIO as {image_object_name}")
-        except S3Error as e:
-            logging.error(f"Error storing abstract image in MinIO: {e}")
+            self._log_to_mongodb(f"Abstract image stored in MinIO as {image_object_name}", context, "INFO")
+        except Exception as e:
+            self._log_to_mongodb(f"Error storing abstract image in MinIO: {e}", context, "ERROR")
 
         # Update the MongoDB document with the MinIO URL of the image
         image_url = minio_client.presigned_get_object(
             self.minio_bucket_name, image_object_name
         )
-        logging.info(f"Image URL: {image_url}")
+        self._log_to_mongodb(f"Image URL: {image_url}", context, "INFO")
 
         # Update the document with the image URL
         melodies_collection.update_one(
             {"_id": ObjectId(melody_id)},
             {"$set": {"abstract_image_url": image_url}},
         )
-        logging.info("Updated MongoDB document with image URL")
+        self._log_to_mongodb("Updated MongoDB document with image URL", context, "INFO")
+        self._log_to_mongodb("GenerateAbstractImageOperator execution completed", context, "INFO")
 
-        logging.info("GenerateAbstractImageOperator execution completed")
-
-        return {"melody_id": str(melody_id), "abstract_image_url": image_url}
+        return {"melody_id": str(melody_id)}
