@@ -23,35 +23,35 @@ services:
 
   lyric_wave_minio1:
     image: minio/minio
-    container_name: lyricwaveminio1
+    container_name: lyric-wave-minio-1
     env_file:
-      - ./.env
+      - .env
     environment:
       MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
       MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
     volumes:
       - minio-data-1:/data
-    command: server http://lyricwaveminio{1...2}/data
+    command: server http://lyric-wave-minio-{1...2}/data
     networks:
       - lyric_wave_network
 
   lyric_wave_minio2:
     image: minio/minio
-    container_name: lyricwaveminio2
+    container_name: lyric-wave-minio-2
     env_file:
-      - ./.env
+      - .env
     environment:
       MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
       MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
     volumes:
       - minio-data-2:/data
-    command: server http://lyricwaveminio{1...2}/data
+    command: server http://lyric-wave-minio-{1...2}/data
     networks:
       - lyric_wave_network
 
   lyric_wave_minio_haproxy:
     image: haproxytech/haproxy-alpine:2.7
-    container_name: lyric_wave_minio_haproxy
+    container_name: lyric-wave-minio-haproxy
     volumes:
       - ./haproxy/minio/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
     ports:

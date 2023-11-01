@@ -6,7 +6,6 @@ from minio import Minio
 from minio.error import S3Error
 from bson import ObjectId
 import io
-import logging
 
 class GenerateVoiceOperator(BaseOperator):
 
@@ -47,18 +46,19 @@ class GenerateVoiceOperator(BaseOperator):
     def execute(self, context):
         # Retrieve melody_id from the previous task using XCom
         melody_id = context['task_instance'].xcom_pull(task_ids='generate_melody_task')['melody_id']
-        
+        print(f"Retrieved melody_id: {melody_id}")
         # Connect to MongoDB and retrieve song_text
         with MongoClient(self.mongo_uri) as client:
+            print("Connected to MongoDB")
             db = client[self.mongo_db]
             collection = db[self.mongo_db_collection]
             
             melody_info = collection.find_one({"_id": ObjectId(melody_id)})
             song_text = melody_info.get("song_text")
-
+            print(f"Retrieved song_text from MongoDB: {song_text}")
             # Generate speech from the song text using gTTS
             tts = gTTS(song_text)
-
+            print("Generated speech using gTTS")
             # Save the speech to a file in MinIO
             minio_client = Minio(
                 self.minio_endpoint,
@@ -70,10 +70,10 @@ class GenerateVoiceOperator(BaseOperator):
             try:
                 # Get the bytes stored in the _io.BytesIO object
                 speech_data_bytes = tts.get_data()
-
+                print(f"Generated speech data (bytes) with length: {len(speech_data_bytes)}")
                 # Use len() to get the length of the bytes
                 speech_data_length = len(speech_data_bytes)
-
+                print(f"Speech data length: {speech_data_length}")
                 minio_client.put_object(
                     self.minio_bucket_name,
                     f"{melody_id}.mp3",
@@ -81,14 +81,15 @@ class GenerateVoiceOperator(BaseOperator):
                     speech_data_length,  # Use the length of the bytes
                     content_type="audio/mpeg"
                 )
+                print(f"Stored speech in MinIO bucket: {self.minio_bucket_name}")
             except S3Error as e:
-                logging.error(f"Error storing speech in MinIO: {e}")
+                print(f"Error storing speech in MinIO: {e}")
                 raise
 
             # Update the BSON document with the MinIO object path
             melody_info['voice_map3_audio_path'] = f"{melody_id}.mp3"
-
+            print(f"Updated MongoDB document with voice_map3_audio_path")
             # Update the document in MongoDB
             collection.update_one({"_id": melody_info['_id']}, {"$set": melody_info})
-
+            print(f"Updated MongoDB document with ID: {melody_id}")
             return {"melody_id": str(melody_id)}
