@@ -3,8 +3,7 @@ from pydub import AudioSegment
 from operators.base_custom_operator import BaseCustomOperator
 from pymongo import MongoClient
 from bson import ObjectId
-from minio.error import S3Error
-import io
+import tempfile
 
 class CombineAudioOperator(BaseCustomOperator):
 
@@ -57,19 +56,20 @@ class CombineAudioOperator(BaseCustomOperator):
         minio_client = self._get_minio_client(context)
 
         try:
-            with io.BytesIO() as melody_wav_data:
-                minio_client.fget_object(self.minio_bucket_name, melody_wav_file_path, melody_wav_data)
-                melody_wav_data.seek(0)
+            melody_wav_data = minio_client.get_object(self.minio_bucket_name, melody_wav_file_path)
+            voice_audio_data = minio_client.get_object(self.minio_bucket_name, voice_map3_audio_path)
 
-            with io.BytesIO() as voice_audio_data:
-                minio_client.fget_object(self.minio_bucket_name, voice_map3_audio_path, voice_audio_data)
-                voice_audio_data.seek(0)
+            with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as melody_wav_temp_file:
+                melody_wav_temp_file_path = melody_wav_temp_file.name
+                melody_wav_temp_file.write(melody_wav_data.read())
 
-            self._log_to_mongodb(f"Downloaded melody WAV and voice audio for melody_id: {melody_id}", context, "INFO")
+            with tempfile.NamedTemporaryFile(suffix=".mp3", delete=False) as voice_audio_temp_file:
+                voice_audio_temp_file_path = voice_audio_temp_file.name
+                voice_audio_temp_file.write(voice_audio_data.read())
 
-            # Load the melody WAV and voice audio files
-            melody = AudioSegment.from_file(melody_wav_data)
-            voice = AudioSegment.from_file(voice_audio_data)
+            # Load the files using the file paths
+            melody = AudioSegment.from_file(melody_wav_temp_file_path, format="wav")
+            voice = AudioSegment.from_file(voice_audio_temp_file_path, format="mp3")
 
             # Resample the audio to match the same sample rate and channels
             voice = voice.set_frame_rate(melody.frame_rate)
@@ -86,9 +86,12 @@ class CombineAudioOperator(BaseCustomOperator):
             self._log_to_mongodb("Audio files combined", context, "INFO")
 
             # Export the combined audio as bytes
-            with io.BytesIO() as combined_audio_data:
-                combined_audio.export(combined_audio_data, format="mp3")
-                combined_audio_data.seek(0)
+            with tempfile.NamedTemporaryFile(suffix=".mp3", delete=False) as combined_audio_temp_file:
+                combined_audio_temp_file_path = combined_audio_temp_file.name
+                combined_audio.export(combined_audio_temp_file_path, format="mp3")
+
+            with open(combined_audio_temp_file_path, 'rb') as combined_audio_file:
+                combined_audio_data = combined_audio_file.read()
 
             # Store the combined audio in MinIO
             minio_client.put_object(
@@ -108,8 +111,8 @@ class CombineAudioOperator(BaseCustomOperator):
 
             self._log_to_mongodb("CombineAudioOperator execution completed", context, "INFO")
 
-        except S3Error as e:
-            self._log_to_mongodb(f"Error storing or retrieving audio from MinIO: {e}", context, "INFO")
+        except Exception as e:
+            self._log_to_mongodb(f"Error storing or retrieving audio from MinIO: {e}", context, "ERROR")
             raise
 
         return {"melody_id": str(melody_id)}

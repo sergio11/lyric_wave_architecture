@@ -20,8 +20,8 @@ with DAG('music_generation_dag', default_args=default_args, default_view="graph"
     GenerateVoiceOperator = operators_module.GenerateVoiceOperator
     operators_module = importlib.import_module('operators.combine_audio_operator')
     CombineAudioOperator = operators_module.CombineAudioOperator
-    operators_module = importlib.import_module('operators.generate_abstract_image_operator')
-    GenerateAbstractImageOperator = operators_module.GenerateAbstractImageOperator
+    operators_module = importlib.import_module('operators.generate_melody_cover_operator')
+    GenerateMelodyCoverOperator = operators_module.GenerateMelodyCoverOperator
 
     # Define the tasks for each operator
     generate_melody_task = GenerateMelodyOperator(
@@ -57,8 +57,8 @@ with DAG('music_generation_dag', default_args=default_args, default_view="graph"
         minio_bucket_name=os.environ.get("MINIO_BUCKET_NAME")
     )
 
-    generate_abstract_image_task = GenerateAbstractImageOperator(
-        task_id='generate_abstract_image_task',
+    generate_melody_cover_task = GenerateMelodyCoverOperator(
+        task_id='generate_melody_cover_task',
         mongo_uri=os.environ.get("MONGO_URI"),
         mongo_db=os.environ.get("MONGO_DB"),
         mongo_db_collection=os.environ.get("MONGO_DB_COLLECTION"),
@@ -69,4 +69,4 @@ with DAG('music_generation_dag', default_args=default_args, default_view="graph"
     )
 
     # Define task dependencies by chaining the tasks in sequence
-    generate_melody_task >> generate_voice_task >> combine_audio_task >> generate_abstract_image_task
+    generate_melody_task >> generate_voice_task >> combine_audio_task >> generate_melody_cover_task
