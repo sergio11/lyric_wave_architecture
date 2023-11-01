@@ -1,0 +1,49 @@
+version: '3'
+
+services:
+  minio1:
+    image: minio/minio
+    container_name: lyricwaveminio1
+    env_file:
+      - ./.env
+    environment:
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+    volumes:
+      - minio-data-1:/data
+    command: server http://lyricwaveminio{1...2}/data
+    networks:
+      - minio-network
+
+  minio2:
+    image: minio/minio
+    container_name: lyricwaveminio2
+    env_file:
+      - ./.env
+    environment:
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+    volumes:
+      - minio-data-2:/data
+    command: server http://lyricwaveminio{1...2}/data
+    networks:
+      - minio-network
+
+  haproxy:
+    image: haproxytech/haproxy-alpine:2.7
+    container_name: lyricwaveminiohaproxy
+    volumes:
+      - ./haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+    ports:
+      - '9000:9000'
+      - '1936:1936'
+    networks:
+      - minio-network
+
+volumes:
+  minio-data-1:
+  minio-data-2:
+
+networks:
+  minio-network:
+    driver: bridge

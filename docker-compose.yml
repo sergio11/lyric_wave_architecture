@@ -187,7 +187,6 @@ services:
     volumes:
       - ./airflow/dags:/usr/local/airflow/dags
       - ./airflow/packages:/usr/local/airflow/packages
-      - ./magentadata:${MODEL_OUTPUT_DIR}
     environment:
       FERNET_KEY: ${FERNET_KEY}
       EXECUTOR: ${EXECUTOR}

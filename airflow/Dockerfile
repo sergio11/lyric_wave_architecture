@@ -1,89 +1,47 @@
-FROM python:3.8-slim-buster
+# Use the official Python 3.8 image as the base
+FROM python:3.8
+
+# Label for Dockerfile maintenance information
 LABEL maintainer="Sergio Sánchez Sánchez"
 
-# Never prompt the user for choices on installation/configuration of packages
-ENV DEBIAN_FRONTEND noninteractive
-ENV TERM linux
+# Set the timezone to Europe/Madrid
+ENV TZ=Europe/Madrid
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-# Airflow
-ARG AIRFLOW_VERSION=2.7.1
-ARG AIRFLOW_USER_HOME=/usr/local/airflow
-ARG AIRFLOW_DEPS=""
-ARG PYTHON_DEPS=""
-ENV AIRFLOW_HOME=${AIRFLOW_USER_HOME}
+# Install Apache Airflow and its dependencies
+RUN pip install apache-airflow[crypto,celery,postgres,jdbc,ssh]==2.7.1
 
-# Define en_US.
-ENV LANGUAGE en_US.UTF-8
-ENV LANG en_US.UTF-8
-ENV LC_ALL en_US.UTF-8
-ENV LC_CTYPE en_US.UTF-8
-ENV LC_MESSAGES en_US.UTF-8
+# Create an Airflow user
+ENV AIRFLOW_USER_HOME=/usr/local/airflow
+RUN useradd -ms /bin/bash -d ${AIRFLOW_USER_HOME} airflow
 
-# Disable noisy "Handling signal" log messages:
-# ENV GUNICORN_CMD_ARGS --log-level WARNING
+# Give the "airflow" user sudo access
+RUN echo "airflow ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
-RUN set -ex \
-    && buildDeps=' \
-        freetds-dev \
-        libkrb5-dev \
-        libsasl2-dev \
-        libssl-dev \
-        libffi-dev \
-        libpq-dev \
-        git \
-        pkg-config \
-        libasound2-dev \
-    ' \
-    && apt-get update -yqq \
-    && apt-get upgrade -yqq \
-    && apt-get install -yqq --no-install-recommends \
-        $buildDeps \
-        freetds-bin \
-        dos2unix \
-        build-essential \
-        default-libmysqlclient-dev \
-        apt-utils \
-        vim \
-        curl \
-        rsync \
-        netcat \
-        locales \
-    && sed -i 's/^# en_US.UTF-8 UTF-8$/en_US.UTF-8 UTF-8/g' /etc/locale.gen \
-    && locale-gen \
-    && update-locale LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 \
-    && useradd -ms /bin/bash -d ${AIRFLOW_USER_HOME} airflow \
-    && pip install -U pip setuptools wheel \
-    && pip install apache-airflow[crypto,celery,postgres,jdbc,mysql,ssh${AIRFLOW_DEPS:+,}${AIRFLOW_DEPS}]==${AIRFLOW_VERSION} \
-    && if [ -n "${PYTHON_DEPS}" ]; then pip install ${PYTHON_DEPS}; fi \
-    && apt-get purge --auto-remove -yqq $buildDeps \
-    && apt-get autoremove -yqq --purge \
-    && apt-get clean \
-    && rm -rf \
-        /var/lib/apt/lists/* \
-        /tmp/* \
-        /var/tmp/* \
-        /usr/share/man \
-        /usr/share/doc \
-        /usr/share/doc-base
-
+# Copy necessary files to the container
 WORKDIR ${AIRFLOW_USER_HOME}
-
 COPY ./packages/requirements.txt packages/requirements.txt
 COPY ./script/entrypoint.sh entrypoint.sh
 COPY ./config/airflow.cfg airflow.cfg
 
-RUN dos2unix entrypoint.sh
-RUN chmod +x entrypoint.sh
-
+# Install additional Python dependencies
 RUN pip install -r ./packages/requirements.txt
 
-RUN uname -a
-RUN pwd
-RUN ls -al
+# Install dos2unix to remove carriage return characters
+# Install ncat (an alternative to netcat), curl, and libsndfile1
+RUN apt-get update && apt-get install -y ncat curl dos2unix libsndfile1
 
+# Run dos2unix on script files to remove carriage return characters
+RUN dos2unix entrypoint.sh
+
+# Change permissions
+RUN chmod +x entrypoint.sh
 RUN chown -R airflow: ${AIRFLOW_USER_HOME}
 
+# Expose ports
 EXPOSE 8080 5555 8793
+
+# Switch to the Airflow user and configure the entry point
 USER airflow
 ENTRYPOINT ["./entrypoint.sh"]
 CMD ["webserver"]

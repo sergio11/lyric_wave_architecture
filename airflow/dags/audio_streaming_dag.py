@@ -8,6 +8,7 @@ default_args = {
     'owner': 'airflow',
     'start_date': datetime(2023, 1, 1),
     'retries': 1,
+    'logging_level': 'INFO'
 }
 
 # Create the DAG with the specified default arguments
@@ -25,8 +26,6 @@ with DAG('music_generation_dag', default_args=default_args, default_view="graph"
     # Define the tasks for each operator
     generate_melody_task = GenerateMelodyOperator(
         task_id='generate_melody_task',
-        model_checkpoint_url=os.environ.get("MODEL_CHECKPOINT_URL"),
-        model_output_dir=os.environ.get("MODEL_OUTPUT_DIR"),
         mongo_uri=os.environ.get("MONGO_URI"),
         mongo_db=os.environ.get("MONGO_DB"),
         mongo_db_collection=os.environ.get("MONGO_DB_COLLECTION"),

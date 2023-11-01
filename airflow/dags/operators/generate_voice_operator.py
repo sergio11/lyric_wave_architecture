@@ -68,22 +68,25 @@ class GenerateVoiceOperator(BaseOperator):
             )
 
             try:
-                with io.BytesIO() as speech_data:
-                    tts.save(speech_data)
-                    speech_data.seek(0)
-                    minio_client.put_object(
-                        self.minio_bucket_name,
-                        f"{melody_id}.mp3",
-                        speech_data,
-                        len(speech_data),
-                        content_type="audio/mpeg"
-                    )
+                # Get the bytes stored in the _io.BytesIO object
+                speech_data_bytes = tts.get_data()
+
+                # Use len() to get the length of the bytes
+                speech_data_length = len(speech_data_bytes)
+
+                minio_client.put_object(
+                    self.minio_bucket_name,
+                    f"{melody_id}.mp3",
+                    io.BytesIO(speech_data_bytes),  # Pass the bytes as a new BytesIO object
+                    speech_data_length,  # Use the length of the bytes
+                    content_type="audio/mpeg"
+                )
             except S3Error as e:
                 logging.error(f"Error storing speech in MinIO: {e}")
                 raise
 
             # Update the BSON document with the MinIO object path
-            melody_info['speech_file_path'] = f"{melody_id}.mp3"
+            melody_info['voice_map3_audio_path'] = f"{melody_id}.mp3"
 
             # Update the document in MongoDB
             collection.update_one({"_id": melody_info['_id']}, {"$set": melody_info})
