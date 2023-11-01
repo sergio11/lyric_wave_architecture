@@ -2,6 +2,7 @@ from airflow.models import BaseOperator
 from airflow.utils.decorators import apply_defaults
 from pydub import AudioSegment
 from pymongo import MongoClient
+from bson import ObjectId
 from minio import Minio
 from minio.error import S3Error
 import io
@@ -65,9 +66,9 @@ class CombineAudioOperator(BaseOperator):
             collection = db[self.mongo_db_collection]
 
             melody_info = collection.find_one({"_id": ObjectId(melody_id)})
-            melody_midi_path = melody_info.get("melody_midi_path")
-            voice_audio_path = melody_info.get("voice_audio_path")
-            logging.info(f"Retrieved melody MIDI and voice audio paths for melody_id: {melody_id}")
+            melody_wav_file_path = melody_info.get("melody_wav_file_path")
+            voice_map3_audio_path = melody_info.get("voice_map3_audio_path")
+            logging.info(f"Retrieved melody WAV and voice audio paths for melody_id: {melody_id}")
 
         # Connect to MinIO and download the MIDI and voice audio
         minio_client = Minio(
@@ -78,18 +79,18 @@ class CombineAudioOperator(BaseOperator):
         )
 
         try:
-            with io.BytesIO() as melody_midi_data:
-                minio_client.fget_object(self.minio_bucket_name, melody_midi_path, melody_midi_data)
-                melody_midi_data.seek(0)
+            with io.BytesIO() as melody_wav_data:
+                minio_client.fget_object(self.minio_bucket_name, melody_wav_file_path, melody_wav_data)
+                melody_wav_data.seek(0)
 
             with io.BytesIO() as voice_audio_data:
-                minio_client.fget_object(self.minio_bucket_name, voice_audio_path, voice_audio_data)
+                minio_client.fget_object(self.minio_bucket_name, voice_map3_audio_path, voice_audio_data)
                 voice_audio_data.seek(0)
 
-            logging.info(f"Downloaded melody MIDI and voice audio for melody_id: {melody_id}")
+            logging.info(f"Downloaded melody WAV and voice audio for melody_id: {melody_id}")
 
-            # Load the melody MIDI and voice audio files
-            melody = AudioSegment.from_file(melody_midi_data)
+            # Load the melody WAV and voice audio files
+            melody = AudioSegment.from_file(melody_wav_data)
             voice = AudioSegment.from_file(voice_audio_data)
 
             # Resample the audio to match the same sample rate and channels

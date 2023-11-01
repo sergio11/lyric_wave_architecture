@@ -1,37 +1,37 @@
 {
-    "info": {
-      "name": "Song Generation API",
-      "description": "Collection for interacting with the Flask API for song generation.",
-      "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
-    },
-    "item": [
-      {
-        "name": "Generate Song",
-        "request": {
-          "method": "POST",
-          "header": [
-            {
-              "key": "Content-Type",
-              "value": "application/json"
-            }
-          ],
-          "body": {
-            "mode": "raw",
-            "raw": "{\n  \"title\": \"Sample Song\",\n  \"text\": \"Lyrics of the sample song.\"\n}"
-          },
-          "url": {
-            "raw": "http://localhost:8086/generate_song",
-            "protocol": "http",
-            "host": [
-              "localhost"
-            ],
-            "port": "8086",
-            "path": [
-              "generate_song"
-            ]
+  "info": {
+    "name": "Song Generation API",
+    "description": "Collection for interacting with the Flask API for song generation.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Generate Song",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
           }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Finding My Glow in the Darkest Hours\",\n  \"text\": \"The rain keeps falling, can't find the light, Dark clouds above, it's a never-ending night. Lost in the shadows, I'm searching for a way, But hope keeps slipping, it's a brand new gray. Oh, this world is heavy, a burden on my chest, I'm feeling broken, I must confess. But I'll keep fighting, I won't let go, In the darkest hours, I'll find my glow. The stars are hiding, can't see them shine, In this lonely hour, I'm yearning for a sign. Dreams shattered like glass, it's hard to breathe, But I'll keep pushing, I won't let grief. Through the tears and sorrow, I'll find my way, In the depths of despair, I'll see the day. Though the road is rocky, I'll walk the mile, With a heavy heart, I'll find my smile. Oh, this world is heavy, a burden on my chest, I'm feeling broken, I must confess. But I'll keep fighting, I won't let go, In the darkest hours, I'll find my glow.\"\n}"
         },
-        "response": []
-      }
-    ]
-  }  
+        "url": {
+          "raw": "http://localhost:8086/generate_song",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8086",
+          "path": [
+            "generate_song"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}
