@@ -23,5 +23,7 @@ Session.vim
 # sftp configuration file
 sftp-config.json
 
+.vscode
+
 # Python
 __pycache__
