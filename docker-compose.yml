@@ -10,16 +10,59 @@ volumes:
     driver: local
   mongo_data:
     driver: local
+  minio-data-1:
+    driver: local
+  minio-data-2:
+    driver: local
 
 # Define a custom network for services to communicate
 networks:
-  airflow_network:
+  lyric_wave_network:
 
 services:
 
+  lyric_wave_minio1:
+    image: minio/minio
+    container_name: lyricwaveminio1
+    env_file:
+      - ./.env
+    environment:
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+    volumes:
+      - minio-data-1:/data
+    command: server http://lyricwaveminio{1...2}/data
+    networks:
+      - lyric_wave_network
+
+  lyric_wave_minio2:
+    image: minio/minio
+    container_name: lyricwaveminio2
+    env_file:
+      - ./.env
+    environment:
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+    volumes:
+      - minio-data-2:/data
+    command: server http://lyricwaveminio{1...2}/data
+    networks:
+      - lyric_wave_network
+
+  lyric_wave_minio_haproxy:
+    image: haproxytech/haproxy-alpine:2.7
+    container_name: lyric_wave_minio_haproxy
+    volumes:
+      - ./haproxy/minio/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+    ports:
+      - '9000:9000'
+      - '1936:1936'
+    networks:
+      - lyric_wave_network
+
   # MongoDB container for Apache Airflow
-  mongo:
-    container_name: airflow_mongo
+  lyric_wave_mongo:
+    container_name: lyric_wave_mongo
     image: mongo
     env_file:
       - .env
@@ -30,17 +73,17 @@ services:
       - MONGO_INITDB_ROOT_PASSWORD=${MONGO_ROOT_PASSWORD}
       - MONGO_INITDB_DATABASE=${MONGO_DB}
     networks:
-      - airflow_network
+      - lyric_wave_network
 
   # Web-based MongoDB admin interface, written with Node.js and express
-  mongo-express:
+  lyric_wave_mongo_express:
     image: mongo-express
-    container_name: airflow_mongo_express
+    container_name: lyric_wave_mongo_express
     restart: on-failure
     env_file:
       - .env
     environment:
-      - ME_CONFIG_MONGODB_SERVER=airflow_mongo
+      - ME_CONFIG_MONGODB_SERVER=lyric_wave_mongo
       - ME_CONFIG_MONGODB_PORT=27017
       - ME_CONFIG_MONGODB_ENABLE_ADMIN=true
       - ME_CONFIG_MONGODB_AUTH_DATABASE=admin
@@ -49,24 +92,24 @@ services:
       - ME_CONFIG_BASICAUTH_USERNAME=${MONGOEXPRESS_LOGIN}
       - ME_CONFIG_BASICAUTH_PASSWORD=${MONGOEXPRESS_PASSWORD}
     depends_on:
-      - mongo
+      - lyric_wave_mongo
     ports:
       - "8087:8081"
     networks:
-      - airflow_network
+      - lyric_wave_network
 
   # Redis container for Apache Airflow's message broker
-  redis:
-    image: 'redis:5.0.5'
-    container_name: airflow_broker
+  lyric_wave_redis:
+    image: redis:5.0.5
+    container_name: lyric_wave_redis
     restart: always
     networks:
-      - airflow_network
+      - lyric_wave_network
     
   # PostgreSQL database container for Apache Airflow
-  postgres:
+  lyric_wave_postgres:
     image: postgres:13
-    container_name: airflow_db
+    container_name: lyric_wave_postgres
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
@@ -76,12 +119,12 @@ services:
     env_file:
       - .env
     networks:
-      - airflow_network
+      - lyric_wave_network
 
   # pgAdmin container for managing the PostgreSQL database
-  pgadmin:
+  lyric_wave_pgadmin:
     image: dpage/pgadmin4
-    container_name: airflow_db_ui
+    container_name: lyric_wave_pgadmin
     restart: always
     environment:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
@@ -94,18 +137,18 @@ services:
     volumes:
       - ./pgadmin_data:/var/lib/pgadmin
     networks:
-      - airflow_network
+      - lyric_wave_network
 
   # Apache Airflow webserver container
-  webserver:
+  lyric_wave_airflow_webserver:
     image: ssanchez11/lyric_wave_apache_airflow:0.0.1
-    container_name: airflow_webserver
+    container_name: lyric_wave_airflow_webserver
     restart: always
     env_file:
       - .env
     depends_on:
-      - postgres
-      - redis
+      - lyric_wave_postgres
+      - lyric_wave_redis
     environment:
       LOAD_EX: ${LOAD_EX}
       FERNET_KEY: ${FERNET_KEY}
@@ -127,17 +170,17 @@ services:
       timeout: 30s
       retries: 3
     networks:
-      - airflow_network
+      - lyric_wave_network
 
   # Flower is a web-based tool for monitoring and administrating Celery clusters.
-  flower:
+  lyric_wave_celery_flower:
     image: ssanchez11/lyric_wave_apache_airflow:0.0.1
-    container_name: airflow_flower
+    container_name: lyric_wave_celery_flower
     restart: always
     env_file:
       - .env
     depends_on:
-      - redis
+      - lyric_wave_redis
     environment:
       EXECUTOR: ${EXECUTOR}
     ports:
@@ -146,17 +189,17 @@ services:
       - "8083:8793"
     command: flower
     networks:
-      - airflow_network
+      - lyric_wave_network
 
   # Apache Airflow scheduler container
-  scheduler:
+  lyric_wave_airflow_scheduler:
     image: ssanchez11/lyric_wave_apache_airflow:0.0.1
-    container_name: airflow_scheduler
+    container_name: lyric_wave_airflow_scheduler
     restart: always
     env_file:
       - .env
     depends_on:
-      - webserver
+      - lyric_wave_airflow_webserver
     volumes:
       - ./airflow/dags:/usr/local/airflow/dags
       - ./airflow/packages:/usr/local/airflow/packages
@@ -173,17 +216,17 @@ services:
       - "8084:8080"
     command: scheduler
     networks:
-      - airflow_network
+      - lyric_wave_network
 
   # Apache Airflow worker containers
-  worker:
+  lyric_wave_airflow_worker_1:
     image: ssanchez11/lyric_wave_apache_airflow:0.0.1
-    container_name: airflow_worker_1
+    container_name: lyric_wave_airflow_worker_1
     restart: always
     env_file:
       - .env
     depends_on:
-      - scheduler
+      - lyric_wave_airflow_scheduler
     volumes:
       - ./airflow/dags:/usr/local/airflow/dags
       - ./airflow/packages:/usr/local/airflow/packages
@@ -197,16 +240,15 @@ services:
       REDIS_HOST: ${REDIS_HOST}
     command: worker
     networks:
-      - airflow_network
+      - lyric_wave_network
 
-
-  api_service_1:
+  lyric_wave_api_service_1:
     image: ssanchez11/lyric_wave_api:0.0.1
-    container_name: api_service_1
+    container_name: lyric_wave_api_service_1
     restart: always
     env_file:
       - .env
     ports:
       - "8086:5000"
     networks:
-      - airflow_network
+      - lyric_wave_network
