@@ -1,14 +1,12 @@
-from airflow.models import BaseOperator
 from airflow.utils.decorators import apply_defaults
+from operators.base_custom_operator import BaseCustomOperator
 from bson import ObjectId
 from pymongo import MongoClient
-from minio import Minio
 import importlib
 import scipy
-from datetime import datetime
 
 
-class GenerateMelodyOperator(BaseOperator):
+class GenerateMelodyOperator(BaseCustomOperator):
 
     """
     Custom Airflow operator for generating melodies based on text input using Magenta's MusicVAE.
@@ -28,83 +26,13 @@ class GenerateMelodyOperator(BaseOperator):
 
     The operator is designed to be used within Airflow DAGs for music generation tasks.
     """
-
     @apply_defaults
     def __init__(
         self,
-        mongo_uri,
-        mongo_db,
-        mongo_db_collection,
-        minio_endpoint,
-        minio_access_key,
-        minio_secret_key,
-        minio_bucket_name,
         *args, **kwargs
     ):
         super().__init__(*args, **kwargs)
-        self.mongo_uri = mongo_uri
-        self.mongo_db = mongo_db
-        self.mongo_db_collection = mongo_db_collection
-        self.minio_endpoint = minio_endpoint
-        self.minio_access_key = minio_access_key
-        self.minio_secret_key = minio_secret_key
-        self.minio_bucket_name = minio_bucket_name
 
-
-    def _log_to_mongodb(self, message, context, log_level):
-        # Obtain the task_instance_id from the context
-        task_instance = context['task_instance']
-        task_instance_id = f"{task_instance.dag_id}.{task_instance.task_id}"
-        
-        # Get the current timestamp
-        current_timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
-        # Register the log message in MongoDB with timestamp
-        log_document = {
-            "task_instance_id": task_instance_id,
-            "log_level": log_level,
-            "timestamp": current_timestamp,  # Add timestamp to the document
-            "log_message": message
-        }
-
-        client = MongoClient(self.mongo_uri)
-        db = client[self.mongo_db]
-
-        try:
-            db.dags_execution_logs.insert_one(log_document)
-            print("Log message registered in MongoDB")
-        except Exception as e:
-            print(f"Error writing log message to MongoDB: {e}")
-
-    def _get_minio_client(self, context):
-        try:
-            # Log MinIO endpoint and access keys
-            self._log_to_mongodb(f"MinIO Endpoint: {self.minio_endpoint}  Bucket Name: {self.minio_bucket_name}", context, "INFO")
-            self._log_to_mongodb(f"Access Key: {self.minio_access_key}", context, "INFO")
-            self._log_to_mongodb("Connecting to MinIO...", context, "INFO")
-
-            # Store the MIDI file in MinIO
-            minio_client = Minio(
-                self.minio_endpoint,
-                access_key=self.minio_access_key,
-                secret_key=self.minio_secret_key,
-                secure=False  # True for secure connection (HTTPS)
-            )
-
-            # Check if the bucket exists
-            bucket_exists = minio_client.bucket_exists(self.minio_bucket_name)
-            if not bucket_exists:
-                self._log_to_mongodb(f"Bucket '{self.minio_bucket_name}' does not exist; creating...", context, "INFO")
-                minio_client.make_bucket(self.minio_bucket_name)
-
-            # Test MinIO connectivity
-            self._log_to_mongodb(f"Connected to MinIO and bucket '{self.minio_bucket_name}' exists", context, "INFO")
-            return minio_client
-
-        except Exception as e:
-            error_message = f"Error connecting to MinIO: {e}"
-            self._log_to_mongodb(error_message, context, "ERROR")
-            raise Exception(error_message)
 
     def _generate_melody(self, song_info_id, song_text):
         """
@@ -137,7 +65,7 @@ class GenerateMelodyOperator(BaseOperator):
             padding=True,
             return_tensors="pt",
         )
-        audio_values = model.generate(**inputs, max_new_tokens=100)
+        audio_values = model.generate(**inputs, max_new_tokens=150)
         wav_file_path = f"{song_info_id}.wav"
         sampling_rate = model.config.audio_encoder.sampling_rate
         scipy.io.wavfile.write(wav_file_path, rate=sampling_rate, data=audio_values[0, 0].numpy())
