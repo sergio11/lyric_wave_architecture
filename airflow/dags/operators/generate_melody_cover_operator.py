@@ -7,7 +7,7 @@ from pymongo import MongoClient
 import io
 from bson import ObjectId
 
-class GenerateAbstractImageOperator(BaseCustomOperator):
+class GenerateMelodyCoverOperator(BaseCustomOperator):
 
     """
     Generates an abstract image based on the song text associated with a melody,
