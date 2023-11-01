@@ -28,8 +28,8 @@ COPY ./config/airflow.cfg airflow.cfg
 RUN pip install -r ./packages/requirements.txt
 
 # Install dos2unix to remove carriage return characters
-# Install ncat (an alternative to netcat), curl, and libsndfile1
-RUN apt-get update && apt-get install -y ncat curl dos2unix libsndfile1
+# Install ncat (an alternative to netcat), curl, libsndfile1 and ffmpeg
+RUN apt-get update && apt-get install -y ncat curl dos2unix libsndfile1 ffmpeg
 
 # Run dos2unix on script files to remove carriage return characters
 RUN dos2unix entrypoint.sh

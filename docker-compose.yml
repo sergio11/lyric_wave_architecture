@@ -26,9 +26,6 @@ services:
     container_name: lyric-wave-minio-1
     env_file:
       - .env
-    environment:
-      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
-      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
     volumes:
       - minio-data-1:/data
     command: server http://lyric-wave-minio-{1...2}/data
@@ -40,9 +37,6 @@ services:
     container_name: lyric-wave-minio-2
     env_file:
       - .env
-    environment:
-      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
-      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
     volumes:
       - minio-data-2:/data
     command: server http://lyric-wave-minio-{1...2}/data
@@ -68,10 +62,6 @@ services:
       - .env
     ports:
       - "27017:27017"
-    environment:
-      - MONGO_INITDB_ROOT_USERNAME=${MONGO_ROOT_USER}
-      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_ROOT_PASSWORD}
-      - MONGO_INITDB_DATABASE=${MONGO_DB}
     networks:
       - lyric_wave_network
 
@@ -82,15 +72,6 @@ services:
     restart: on-failure
     env_file:
       - .env
-    environment:
-      - ME_CONFIG_MONGODB_SERVER=lyric_wave_mongo
-      - ME_CONFIG_MONGODB_PORT=27017
-      - ME_CONFIG_MONGODB_ENABLE_ADMIN=true
-      - ME_CONFIG_MONGODB_AUTH_DATABASE=admin
-      - ME_CONFIG_MONGODB_ADMINUSERNAME=${MONGO_ROOT_USER}
-      - ME_CONFIG_MONGODB_ADMINPASSWORD=${MONGO_ROOT_PASSWORD}
-      - ME_CONFIG_BASICAUTH_USERNAME=${MONGOEXPRESS_LOGIN}
-      - ME_CONFIG_BASICAUTH_PASSWORD=${MONGOEXPRESS_PASSWORD}
     depends_on:
       - lyric_wave_mongo
     ports:
@@ -110,10 +91,6 @@ services:
   lyric_wave_postgres:
     image: postgres:13
     container_name: lyric_wave_postgres
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     env_file:
@@ -126,10 +103,6 @@ services:
     image: dpage/pgadmin4
     container_name: lyric_wave_pgadmin
     restart: always
-    environment:
-      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
-      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
-      PGADMIN_LISTEN_PORT: ${PGADMIN_LISTEN_PORT}
     env_file:
       - .env
     ports:
@@ -149,15 +122,6 @@ services:
     depends_on:
       - lyric_wave_postgres
       - lyric_wave_redis
-    environment:
-      LOAD_EX: ${LOAD_EX}
-      FERNET_KEY: ${FERNET_KEY}
-      EXECUTOR: ${EXECUTOR}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_HOST: ${POSTGRES_HOST}
-      REDIS_HOST: ${REDIS_HOST}
     volumes:
       - ./airflow/dags:/usr/local/airflow/dags
       - ./airflow/packages:/usr/local/airflow/packages
@@ -181,8 +145,6 @@ services:
       - .env
     depends_on:
       - lyric_wave_redis
-    environment:
-      EXECUTOR: ${EXECUTOR}
     ports:
       - "8081:5555"
       - "8082:8080"
@@ -203,15 +165,6 @@ services:
     volumes:
       - ./airflow/dags:/usr/local/airflow/dags
       - ./airflow/packages:/usr/local/airflow/packages
-    environment:
-      LOAD_EX: ${LOAD_EX}
-      FERNET_KEY: ${FERNET_KEY}
-      EXECUTOR: ${EXECUTOR}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_HOST: ${POSTGRES_HOST}
-      REDIS_HOST: ${REDIS_HOST}
     ports:
       - "8084:8080"
     command: scheduler
@@ -230,18 +183,11 @@ services:
     volumes:
       - ./airflow/dags:/usr/local/airflow/dags
       - ./airflow/packages:/usr/local/airflow/packages
-    environment:
-      FERNET_KEY: ${FERNET_KEY}
-      EXECUTOR: ${EXECUTOR}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_HOST: ${POSTGRES_HOST}
-      REDIS_HOST: ${REDIS_HOST}
     command: worker
     networks:
       - lyric_wave_network
 
+  # Lyric Wave API Service
   lyric_wave_api_service_1:
     image: ssanchez11/lyric_wave_api:0.0.1
     container_name: lyric_wave_api_service_1
