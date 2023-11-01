@@ -5,7 +5,7 @@ from pymongo import MongoClient
 from minio import Minio
 from minio.error import S3Error
 import logging
-from transformers import AutoProcessor, MusicgenForConditionalGeneration
+import importlib
 import scipy
 
 
@@ -75,8 +75,9 @@ class GenerateMelodyOperator(BaseOperator):
             # melody_path could be something like '605c1b6d20095cd4338d12c7.wav'
 
         """
-        processor = AutoProcessor.from_pretrained("facebook/musicgen-small")
-        model = MusicgenForConditionalGeneration.from_pretrained("facebook/musicgen-small")
+        transformers = importlib.import_module("transformers")
+        processor = transformers.AutoProcessor.from_pretrained("facebook/musicgen-small")
+        model = transformers.MusicgenForConditionalGeneration.from_pretrained("facebook/musicgen-small")
         inputs = processor(
             text=song_text,
             padding=True,
