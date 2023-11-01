@@ -160,26 +160,105 @@ def generate_song():
         }
         return jsonify(response_data), 500
 
-# API endpoint for streaming audio by song ID
-@app.route('/stream_audio/<song_id>')
-def stream_audio(song_id):
-    # Find the song document in MongoDB by its ID and content type
-    song = fs.find_one({"_id": ObjectId(song_id), "content_type": "audio/mpeg"})
+# API endpoint for retrieving a song by ID
+@app.route('/songs/<string:song_id>', methods=['GET'])
+def get_song_by_id(song_id):
+    try:
+        song_info = fs.find_one({"_id": ObjectId(song_id)})
+        if song_info:
+            response_data = {
+                "status": "success",
+                "code": 200,
+                "message": "Song retrieved successfully.",
+                "song_info": {
+                    "song_title": song_info["song_title"],
+                    "song_text": song_info["song_text"],
+                    "description": song_info.get("description", ""),
+                    "song_info_id": str(song_info["_id"]),
+                    "planned_date": song_info.get("logical_date", "")
+                }
+            }
+            return jsonify(response_data), 200
+        else:
+            response_data = {
+                "status": "error",
+                "code": 404,
+                "message": "Song not found",
+                "song_info": None
+            }
+            return jsonify(response_data), 404
+    except Exception as e:
+        logger.error(f"An error occurred: {str(e)}")
+        return jsonify({"message": "An internal server error occurred"}), 500
 
-    if song:
-        def generate():
-            # Read and yield data from the song in chunks
-            data = song.read(1024)
-            while data:
-                yield data
-                data = song.read(1024)
+# API endpoint for listing all songs paginated, descending by date
+@app.route('/songs', methods=['GET'])
+def list_songs():
+    try:
+        page = int(request.args.get('page', 1))
+        per_page = int(request.args.get('per_page', 10))
+        
+        songs = list(fs.find().sort([("logical_date", -1)]).skip((page - 1) * per_page).limit(per_page))
+        if songs:
+            response_data = {
+                "status": "success",
+                "code": 200,
+                "message": "Songs retrieved successfully.",
+                "songs": [
+                    {
+                        "song_title": song["song_title"],
+                        "song_text": song["song_text"],
+                        "description": song.get("description", ""),
+                        "song_info_id": str(song["_id"]),
+                        "planned_date": song.get("logical_date", "")
+                    }
+                    for song in songs
+                ]
+            }
+            return jsonify(response_data), 200
+        else:
+            response_data = {
+                "status": "error",
+                "code": 404,
+                "message": "No songs found",
+                "songs": []
+            }
+            return jsonify(response_data), 404
+    except Exception as e:
+        logger.error(f"An error occurred: {str(e)}")
+        return jsonify({"message": "An internal server error occurred"}), 500
 
-        # Create a Flask Response for streaming audio
-        response = Response(generate(), content_type=song.content_type)
-        response.headers["Content-Disposition"] = f"inline; filename={song.filename}"
-        return response
-
-    return "Song not found", 404
+# API endpoint for deleting a song by ID
+@app.route('/songs/<string:song_id>', methods=['DELETE'])
+def delete_song_by_id(song_id):
+    try:
+        song_info = fs.find_one({"_id": ObjectId(song_id)})
+        if song_info:
+            fs.delete_one({"_id": ObjectId(song_id)})
+            response_data = {
+                "status": "success",
+                "code": 200,
+                "message": "Song deleted successfully",
+                "song_info": {
+                    "song_title": song_info["song_title"],
+                    "song_text": song_info["song_text"],
+                    "description": song_info.get("description", ""),
+                    "song_info_id": str(song_info["_id"]),
+                    "planned_date": song_info.get("logical_date", "")
+                }
+            }
+            return jsonify(response_data), 200
+        else:
+            response_data = {
+                "status": "error",
+                "code": 404,
+                "message": "Song not found",
+                "song_info": None
+            }
+            return jsonify(response_data), 404
+    except Exception as e:
+        logger.error(f"An error occurred: {str(e)}")
+        return jsonify({"message": "An internal server error occurred"}), 500
 
 # Start the Flask application if this script is executed directly
 if __name__ == '__main__':
