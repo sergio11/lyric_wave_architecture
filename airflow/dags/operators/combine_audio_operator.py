@@ -8,9 +8,7 @@ import tempfile
 class CombineAudioOperator(BaseCustomOperator):
 
     """
-    CombineAudioOperator combines a melody MIDI file and voice audio file,
-    and stores the combined audio in MinIO. It updates the BSON document in
-    MongoDB with the MinIO object path for the combined audio.
+    Combines a melody and voice audio and stores the combined audio in MinIO.
 
     :param mongo_uri: MongoDB connection URI.
     :type mongo_uri: str
@@ -47,29 +45,28 @@ class CombineAudioOperator(BaseCustomOperator):
             collection = db[self.mongo_db_collection]
 
             melody_info = collection.find_one({"_id": ObjectId(melody_id)})
-            melody_wav_file_path = melody_info.get("melody_wav_file_path")
-            voice_map3_audio_path = melody_info.get("voice_map3_audio_path")
+            melody_file_path = melody_info.get("melody_file_path")
+            voice_file_path = melody_info.get("voice_file_path")
             self._log_to_mongodb(f"Retrieved melody WAV and voice audio paths for melody_id: {melody_id}", context, "INFO")
 
-        # Connect to MinIO and download the WAV and voice audio
-        # Get MinIO client
+        # Connect to MinIO and download the Melody and voice audio
         minio_client = self._get_minio_client(context)
 
         try:
-            melody_wav_data = minio_client.get_object(self.minio_bucket_name, melody_wav_file_path)
-            voice_audio_data = minio_client.get_object(self.minio_bucket_name, voice_map3_audio_path)
+            melody_file_data = minio_client.get_object(self.minio_bucket_name, melody_file_path)
+            voice_file_data = minio_client.get_object(self.minio_bucket_name, voice_file_path)
 
-            with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as melody_wav_temp_file:
-                melody_wav_temp_file_path = melody_wav_temp_file.name
-                melody_wav_temp_file.write(melody_wav_data.read())
+            with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as melody_temp_file:
+                melody_temp_file_path = melody_temp_file.name
+                melody_temp_file.write(melody_file_data.read())
 
-            with tempfile.NamedTemporaryFile(suffix=".mp3", delete=False) as voice_audio_temp_file:
-                voice_audio_temp_file_path = voice_audio_temp_file.name
-                voice_audio_temp_file.write(voice_audio_data.read())
+            with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as voice_temp_file:
+                voice_temp_file_path = voice_temp_file.name
+                voice_temp_file.write(voice_file_data.read())
 
             # Load the files using the file paths
-            melody = AudioSegment.from_file(melody_wav_temp_file_path, format="wav")
-            voice = AudioSegment.from_file(voice_audio_temp_file_path, format="mp3")
+            melody = AudioSegment.from_file(melody_temp_file_path, format="wav")
+            voice = AudioSegment.from_file(voice_temp_file_path, format="wav")
 
             # Resample the audio to match the same sample rate and channels
             voice = voice.set_frame_rate(melody.frame_rate)
