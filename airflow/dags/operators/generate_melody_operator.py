@@ -56,7 +56,7 @@ class GenerateMelodyOperator(BaseCustomOperator):
             return_tensors="pt",
         )
         audio_values = model.generate(**inputs, max_new_tokens=150)
-        wav_file_path = f"{song_info_id}.wav"
+        wav_file_path = f"{song_info_id}_melody.wav"
         sampling_rate = model.config.audio_encoder.sampling_rate
         scipy.io.wavfile.write(wav_file_path, rate=sampling_rate, data=audio_values[0, 0].numpy())
         return wav_file_path
