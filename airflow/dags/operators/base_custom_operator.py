@@ -91,3 +91,57 @@ class BaseCustomOperator(BaseOperator):
             error_message = f"Error connecting to MinIO: {e}"
             self._log_to_mongodb(error_message, context, "ERROR")
             raise Exception(error_message)
+        
+
+    def _store_file_in_minio(self, local_file_path, minio_object_name, context, content_type=None):
+        """
+        Stores a file in MinIO.
+
+        Args:
+            local_file_path (str): The local path to the file to be stored in MinIO.
+            minio_object_name (str): The name to be used for the object in MinIO.
+            context (dict): The Airflow task context for logging and error handling.
+            content_type (str, optional): The content type of the object to be stored in MinIO.
+
+        Raises:
+            Exception: If there's an error during the MinIO file storage process.
+
+        This method is responsible for uploading a file to a specified MinIO bucket. It checks the file's
+        size, sets the content type if specified, and logs information about the storage process. If an error occurs,
+        it raises an exception with an error message.
+
+        Args:
+            local_file_path (str): The local path to the file.
+            minio_object_name (str): The name for the object in MinIO.
+            context (dict): The Airflow task context.
+            content_type (str, optional): The content type of the object.
+
+        Returns:
+            None
+        """
+        try:
+            with open(local_file_path, 'rb') as file_data:
+                file_data.seek(0, 2)
+                file_size_bytes = file_data.tell()
+                file_data.seek(0)
+                if file_size_bytes == 0:
+                    error_message = f"File '{local_file_path}' is empty"
+                    self._log_to_mongodb(error_message, context, "ERROR")
+                    raise Exception(error_message)
+                
+                file_size_kb = file_size_bytes / 1024
+                self._log_to_mongodb(f"Try to store file '{local_file_path}' ({file_size_kb:.2f} KB) in MinIO bucket: {self.minio_bucket_name}", context, "INFO")
+                 # Get MinIO client
+                minio_client = self._get_minio_client(context)
+                minio_client.put_object(
+                    self.minio_bucket_name,
+                    minio_object_name,
+                    file_data,
+                    file_size_bytes,
+                    content_type=content_type
+                )
+                self._log_to_mongodb(f"File '{local_file_path}' stored in MinIO bucket: {self.minio_bucket_name}", context, "INFO")
+        except Exception as e:
+            error_message = f"Error storing file '{local_file_path}' in MinIO: {e}"
+            self._log_to_mongodb(error_message, context, "ERROR")
+            raise Exception(error_message)
