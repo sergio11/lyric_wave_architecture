@@ -69,7 +69,7 @@ services:
 
   # MongoDB container for Apache Airflow
   lyric_wave_mongo:
-    container_name: lyric_wave_mongo
+    container_name: lyric-wave-mongo
     image: mongo
     env_file:
       - .env
@@ -81,7 +81,7 @@ services:
   # Web-based MongoDB admin interface, written with Node.js and express
   lyric_wave_mongo_express:
     image: mongo-express
-    container_name: lyric_wave_mongo_express
+    container_name: lyric-wave-mongo-express
     restart: on-failure
     env_file:
       - .env
@@ -95,7 +95,7 @@ services:
   # Redis container for Apache Airflow's message broker
   lyric_wave_redis:
     image: redis:5.0.5
-    container_name: lyric_wave_redis
+    container_name: lyric-wave-redis
     restart: always
     networks:
       - lyric_wave_network
@@ -103,7 +103,7 @@ services:
   # PostgreSQL database container for Apache Airflow
   lyric_wave_postgres:
     image: postgres:13
-    container_name: lyric_wave_postgres
+    container_name: lyric-wave-postgres
     volumes:
       - postgres_data:/var/lib/postgresql/data
     env_file:
@@ -114,7 +114,7 @@ services:
   # pgAdmin container for managing the PostgreSQL database
   lyric_wave_pgadmin:
     image: dpage/pgadmin4
-    container_name: lyric_wave_pgadmin
+    container_name: lyric-wave-pgadmin
     restart: always
     env_file:
       - .env
@@ -128,7 +128,7 @@ services:
   # Apache Airflow webserver container
   lyric_wave_airflow_webserver:
     image: ssanchez11/lyric_wave_apache_airflow:0.0.1
-    container_name: lyric_wave_airflow_webserver
+    container_name: lyric-wave-airflow-webserver
     restart: always
     env_file:
       - .env
@@ -152,7 +152,7 @@ services:
   # Flower is a web-based tool for monitoring and administrating Celery clusters.
   lyric_wave_celery_flower:
     image: ssanchez11/lyric_wave_apache_airflow:0.0.1
-    container_name: lyric_wave_celery_flower
+    container_name: lyric-wave-celery-flower
     restart: always
     env_file:
       - .env
@@ -169,7 +169,7 @@ services:
   # Apache Airflow scheduler container
   lyric_wave_airflow_scheduler:
     image: ssanchez11/lyric_wave_apache_airflow:0.0.1
-    container_name: lyric_wave_airflow_scheduler
+    container_name: lyric-wave-airflow-scheduler
     restart: always
     env_file:
       - .env
@@ -187,7 +187,7 @@ services:
   # Apache Airflow worker containers
   lyric_wave_airflow_worker_1:
     image: ssanchez11/lyric_wave_apache_airflow:0.0.1
-    container_name: lyric_wave_airflow_worker_1
+    container_name: lyric-wave-airflow-worker-1
     restart: always
     env_file:
       - .env
@@ -200,14 +200,43 @@ services:
     networks:
       - lyric_wave_network
 
-  # Lyric Wave API Service
-  lyric_wave_api_service_1:
-    image: ssanchez11/lyric_wave_api:0.0.1
-    container_name: lyric_wave_api_service_1
+  # Lyric Wave API Song Generation API Service
+  lyric_wave_song_generation_api_service_1:
+    image: ssanchez11/lyric_wave_song_generation_api:0.0.1
+    container_name: lyric-wave-song-generation-api-service-1
     restart: always
     env_file:
       - .env
+    networks:
+      - lyric_wave_network
+
+  # Lyric Wave API Song Generation API Service
+  lyric_wave_song_generation_api_service_2:
+    image: ssanchez11/lyric_wave_song_generation_api:0.0.1
+    container_name: lyric-wave-song-generation-api-service-2
+    restart: always
+    env_file:
+      - .env
+    networks:
+      - lyric_wave_network
+
+  # Lyric Wave API Song Generation API Service
+  lyric_wave_song_generation_api_service_3:
+    image: ssanchez11/lyric_wave_song_generation_api:0.0.1
+    container_name: lyric-wave-song-generation-api-service-3
+    restart: always
+    env_file:
+      - .env
+    networks:
+      - lyric_wave_network
+
+  lyric_wave_song_generation_haproxy:
+    image: haproxytech/haproxy-alpine:2.7
+    container_name: lyric-wave-song-generation-haproxy
+    volumes:
+      - ./haproxy/song_generation/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
     ports:
-      - "8086:5000"
+      - '8086:5000'
+      - '1937:1936'
     networks:
       - lyric_wave_network
