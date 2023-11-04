@@ -67,11 +67,15 @@ https://github.com/sergio11/lyric_wave_architecture/assets/6996211/ce870367-051e
 
 ### "Rise and Shine"
 
+ ![Rise and Shine Song image cover](songs/rise_and_shine/rise_and_shine_song_cover.jpg)
+
 https://github.com/sergio11/lyric_wave_architecture/assets/6996211/3c20e936-4bc3-4c78-8ffe-c44ba9d03f43
 
 * **Meaning**: The song "Rise and Shine" is an uplifting message of hope and empowerment. It encourages the listener to embrace their inner strength and face the world with a positive attitude."
 
 ### "Fading Echoes"
+
+![Rise and Shine Song image cover](songs/fading_echoes/fading_echoes_song_cover.jpg)
 
 https://github.com/sergio11/lyric_wave_architecture/assets/6996211/50a608b8-a7b2-4a44-966d-e1b2262ae336
 
@@ -79,11 +83,15 @@ https://github.com/sergio11/lyric_wave_architecture/assets/6996211/50a608b8-a7b2
 
 ### "Fading Memories"
 
+![Rise and Shine Song image cover](songs/fading_memories/fading_memories_song_cover.jpg)
+
 https://github.com/sergio11/lyric_wave_architecture/assets/6996211/7ec6485f-78f2-4a90-8bbd-09f82fb771be
 
 * **Meaning**: The song "Fading Memories" is a melancholic reflection on the experience of loss and nostalgia. The lyrics paint a picture of someone who is deeply affected by fading memories of a past love.
 
-### "Broken Memories"
+### "Broken Promises"
+
+![Rise and Shine Song image cover](songs/broken_promises/broken_promises_song_cover.jpg)
 
 https://github.com/sergio11/lyric_wave_architecture/assets/6996211/f93707d1-45fd-473c-8395-d346079bb4d1
 
