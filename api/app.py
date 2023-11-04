@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, Response
+from flask import Flask, abort, request, jsonify, Response
 import os
 import requests
 from pymongo import MongoClient
@@ -41,16 +41,83 @@ def handle_error(e):
     logger.error(f"An error occurred: {str(e)}")
     return jsonify({"message": "An internal server error occurred"}), 500
 
+@app.route('/music_styles', methods=['GET'])
+def get_music_styles():
+    try:
+        # Retrieve the list of music styles from the collection
+        music_styles_cursor = db['music_styles'].find({})
+        styles = [style['style'] for style in music_styles_cursor]
+        
+        response_data = {
+            "status": "success",
+            "code": 200,
+            "message": "Music styles retrieved successfully." if styles else "No music styles found.",
+            "music_styles": styles
+        }
+        return jsonify(response_data), 200
+    except Exception as e:
+        # Handle any exceptions and log errors
+        logger.error(f"An error occurred: {str(e)}")
+        return jsonify({"message": "An internal server error occurred"}), 500
+
+@app.route('/music_styles', methods=['PUT'])
+def update_music_styles():
+    try:
+        # Get the list of styles sent in the request
+        styles = request.json.get('styles')
+        if styles is not None:
+            collection = db['music_styles']
+            # Remove the existing music styles
+            collection.delete_many({})
+
+            # Insert each style as a separate document
+            inserted_ids = []
+            for style in styles:
+                result = collection.insert_one({"style": style})
+                inserted_ids.append(str(result.inserted_id))
+
+            response_data = {
+                "status": "success",
+                "code": 200,
+                "message": "Music styles updated successfully.",
+                "inserted_ids": inserted_ids
+            }
+            return jsonify(response_data), 200
+        else:
+            response_data = {
+                "status": "error",
+                "code": 400,
+                "message": "Invalid or missing 'styles' parameter in the request.",
+            }
+            return jsonify(response_data), 400
+    except Exception as e:
+        # Handle any exceptions and log errors
+        logger.error(f"An error occurred: {str(e)}")
+        return jsonify({"message": "An internal server error occurred"}), 500
+
+
+
 # API endpoint for generating a song
 @app.route('/generate_song', methods=['POST'])
 def generate_song():
     logger.info("Received a request to generate a song.")
-    
+
     try:
-        # Get song title and text from the request's JSON data
+        # Get song title, text, description, keywords, and style ID from the request's JSON data
         song_title = request.json.get('title')
         song_text = request.json.get('text')
         description = request.json.get('description')
+        keywords = request.json.get('keywords')
+        music_style_id = request.json.get('music_style_id')
+
+        # Validate the length of song_text
+        validate_song_text(song_text)
+
+        # Check if a song with the same title already exists
+        check_existing_song(song_title)
+
+        # Check if the provided style_id exists in the music_styles collection
+        check_music_style(music_style_id)
 
         if song_title and song_text:
             logger.info(f"Generating song for '{song_title}' with description: {description}")
@@ -65,22 +132,24 @@ def generate_song():
             # Build the URL to trigger the DAG execution
             airflow_dag_url = f"{AIRFLOW_API_URL}/dags/{AIRFLOW_DAG_ID}/dagRuns"
 
-            # Create a BSON document with song information
+            # Create a BSON document with song information, including keywords and style_id
             song_info = {
                 "song_title": song_title,
                 "song_text": song_text,
                 "description": description,
+                "keywords": keywords,
+                "music_style_id": music_style_id,
                 "dag_run_id": dag_run_id,
                 "logical_date": logical_date_str,
                 "planned": False  # Initial status, not yet planned
             }
 
-            # Insert the BSON document into MongoDB collection and get the ObjectID
+            # Insert the BSON document into the MongoDB collection and get the ObjectID
             song_info_id = fs.insert_one(song_info).inserted_id
 
             logger.info(f"Inserted song information into MongoDB with ID: {song_info_id}")
 
-            # Configure DAG run parameters
+            # Configure DAG run parameters, including song_info_id
             dag_run_conf = {
                 "conf": {
                     "song_info_id": str(song_info_id),
@@ -123,6 +192,8 @@ def generate_song():
                         "song_title": song_title,
                         "song_text": song_text,
                         "description": description,
+                        "keywords": keywords,
+                        "music_style_id": music_style_id,
                         "song_info_id": str(song_info_id),
                         "planned_date": logical_date_str
                     }
@@ -259,6 +330,25 @@ def delete_song_by_id(song_id):
     except Exception as e:
         logger.error(f"An error occurred: {str(e)}")
         return jsonify({"message": "An internal server error occurred"}), 500
+    
+
+# Helper function to validate song text length
+def validate_song_text(song_text):
+    max_length = 200
+    if len(song_text) > max_length:
+        abort(400, "Song text exceeds the maximum allowed length (200 characters).")
+
+# Helper function to check if a song with the same title already exists
+def check_existing_song(song_title):
+    existing_song = fs.find_one({"song_title": song_title})
+    if existing_song:
+        abort(400, "A song with the same title already exists.")
+
+# Helper function to check if a music style with the specified ID exists
+def check_music_style(style_id):
+    music_style = db['music_styles'].find_one({"_id": ObjectId(style_id)})
+    if not music_style:
+        abort(400, "Invalid music style ID. The specified style does not exist.")
 
 # Start the Flask application if this script is executed directly
 if __name__ == '__main__':
