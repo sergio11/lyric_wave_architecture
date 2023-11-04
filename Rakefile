@@ -57,18 +57,47 @@ namespace :lyricwave do
       puts "Apache Airflow image built and pushed successfully."
     end
 
-    # Build and push LyricWave API Docker image
-    desc "Build and push LyricWave API Docker image"
-    task :build_and_push_api_image do
-      api_image_name = "ssanchez11/lyric_wave_api:0.0.1"
+    # Build and push LyricWave Song Generation API Docker image
+    desc "Build and push LyricWave Song Generation API Docker image"
+    task :build_and_push_song_generation_api_image do
+      api_image_name = "ssanchez11/lyric_wave_song_generation_api:0.0.1"
       api_directory = "./api"
-      puts "Building Flask API Docker image..."
+      puts "Building LyricWave Song Generation API Docker image..."
       build_command = "docker build -t #{api_image_name} #{api_directory}"
       system(build_command)
-      puts "Pushing Flask API Docker image to DockerHub..."
+      puts "Pushing LyricWave Song Generation API Docker image to DockerHub..."
       push_command = "docker push #{api_image_name}"
       system(push_command)
-      puts "Flask API image built and pushed successfully."
+      puts "LyricWave Song Generation API image built and pushed successfully."
+    end
+
+    # Import music styles from JSON file
+    desc "Import music styles from JSON file"
+    task :import_music_styles do
+        require 'json'
+        require 'net/http'
+        require 'uri'
+
+        json_file_path = 'music_styles.json'
+
+        # Load the music styles from the JSON file
+        music_styles = JSON.parse(File.read(json_file_path))
+
+        # Prepare the request to update the music styles in MongoDB
+        uri = URI.parse('http://localhost:8086/music_styles')
+        http = Net::HTTP.new(uri.host, uri.port)
+        request = Net::HTTP::Put.new(uri.request_uri)
+        request.body = { "styles" => music_styles }.to_json
+        request['Content-Type'] = 'application/json'
+
+        # Send the PUT request to update the music styles
+        response = http.request(request)
+
+        if response.code == '200'
+            puts 'Music styles imported to MongoDB successfully.'
+        else
+            puts "Failed to import music styles. HTTP Response: #{response.code} #{response.message}"
+        end
     end
 
     # Cleaning Environment task
