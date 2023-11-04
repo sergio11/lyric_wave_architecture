@@ -14,6 +14,8 @@ volumes:
     driver: local
   minio-data-2:
     driver: local
+  minio-data-3:
+    driver: local
 
 # Define a custom network for services to communicate
 networks:
@@ -28,7 +30,7 @@ services:
       - .env
     volumes:
       - minio-data-1:/data
-    command: server http://lyric-wave-minio-{1...2}/data
+    command: server http://lyric-wave-minio-{1...3}/data
     networks:
       - lyric_wave_network
 
@@ -39,7 +41,18 @@ services:
       - .env
     volumes:
       - minio-data-2:/data
-    command: server http://lyric-wave-minio-{1...2}/data
+    command: server http://lyric-wave-minio-{1...3}/data
+    networks:
+      - lyric_wave_network
+
+  lyric_wave_minio3:
+    image: minio/minio
+    container_name: lyric-wave-minio-3
+    env_file:
+      - .env
+    volumes:
+      - minio-data-3:/data
+    command: server http://lyric-wave-minio-{1...3}/data
     networks:
       - lyric_wave_network
 
