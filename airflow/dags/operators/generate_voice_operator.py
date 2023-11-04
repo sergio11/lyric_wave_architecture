@@ -1,6 +1,5 @@
 from airflow.utils.decorators import apply_defaults
 from operators.base_custom_operator import BaseCustomOperator
-from pymongo import MongoClient
 from bson import ObjectId
 import importlib
 import scipy

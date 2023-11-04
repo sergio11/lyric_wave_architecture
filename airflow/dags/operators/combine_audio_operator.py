@@ -1,7 +1,6 @@
 from airflow.utils.decorators import apply_defaults
 from pydub import AudioSegment
 from operators.base_custom_operator import BaseCustomOperator
-from pymongo import MongoClient
 from bson import ObjectId
 import tempfile
 
@@ -45,6 +44,7 @@ class CombineAudioOperator(BaseCustomOperator):
         melody_info = collection.find_one({"_id": ObjectId(melody_id)})
         melody_file_path = melody_info.get("melody_file_path")
         voice_file_path = melody_info.get("voice_file_path")
+
         self._log_to_mongodb(f"Retrieved melody WAV and voice audio paths for melody_id: {melody_id}", context, "INFO")
 
         # Connect to MinIO and download the Melody and voice audio
@@ -66,6 +66,14 @@ class CombineAudioOperator(BaseCustomOperator):
             melody = AudioSegment.from_file(melody_temp_file_path, format="wav")
             voice = AudioSegment.from_file(voice_temp_file_path, format="wav")
 
+            # Try to normalize the voice in order to improve the audio quality
+            voice = voice.normalize()
+            fade_duration = 100
+            voice = voice.fade_in(fade_duration).fade_out(fade_duration)
+
+            amplification_factor = 5.0
+            melody = melody + amplification_factor
+            voice = voice + amplification_factor
             # Resample the audio to match the same sample rate and channels
             voice = voice.set_frame_rate(melody.frame_rate)
             voice = voice.set_channels(melody.channels)
@@ -81,25 +89,23 @@ class CombineAudioOperator(BaseCustomOperator):
             self._log_to_mongodb("Audio files combined", context, "INFO")
 
             # Export the combined audio as bytes
-            with tempfile.NamedTemporaryFile(suffix=".mp3", delete=False) as combined_audio_temp_file:
+            with tempfile.NamedTemporaryFile(suffix=".mp4", delete=False) as combined_audio_temp_file:
                 combined_audio_temp_file_path = combined_audio_temp_file.name
-                combined_audio.export(combined_audio_temp_file_path, format="mp3")
+                combined_audio.export(combined_audio_temp_file_path, format="mp4")
 
-            with open(combined_audio_temp_file_path, 'rb') as combined_audio_file:
-                combined_audio_data = combined_audio_file.read()
+            final_song_path = f"{melody_id}_final_song.mp4"
 
-            # Store the combined audio in MinIO
-            minio_client.put_object(
-                self.minio_bucket_name,
-                f"{melody_id}_combined.mp3",
-                combined_audio_data,
-                len(combined_audio_data),
-                content_type="audio/mpeg"
-            )
+            # Store the generated file in MinIO
+            self._store_file_in_minio(
+                local_file_path=combined_audio_temp_file_path, 
+                minio_object_name=final_song_path,
+                context=context, 
+                content_type="audio/mpeg")
+
             self._log_to_mongodb(f"Combined audio stored in MinIO for melody_id: {melody_id}", context, "INFO")
 
             # Update the BSON document with the MinIO object path
-            melody_info['combined_audio_path'] = f"{melody_id}_combined.mp3"
+            melody_info['final_song_path'] = final_song_path
 
             # Update the document in MongoDB
             collection.update_one({"_id": melody_info['_id']}, {"$set": melody_info})
