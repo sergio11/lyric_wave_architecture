@@ -1,10 +1,8 @@
 # LyricWave: AI-Powered Music Generation Platform
 
-Step into the world of music with LyricWave, an AI-powered music generation platform that harmonizes song lyrics with original melodies and synthetic vocals, crafting distinctive MP3 and MIDI songs tailored to your text. 🎶🤖
-With LyricWave, creativity knows no bounds! 🌟 Generate personalized tunes, experiment with lyrics, and explore endless musical possibilities. Whether you're an artist, songwriter, or just looking for a unique musical experience, LyricWave has you covered. 📝🎼
-Unleash your inner composer and let LyricWave transform your words into beautiful melodies. Get ready to embark on a musical journey like never before! 🚀🎤
+Step into the world of music with LyricWave, a cutting-edge AI-driven platform that brings together the art of music creation and technology. 🎶🤖
 
-LyricWave is a cutting-edge music generation platform that seamlessly fuses song lyrics with original melodies and synthetic vocals, resulting in personalized and enchanting MP3 and MIDI tracks. Leveraging the robust capabilities of Apache Airflow and the creative prowess of Magenta AI, LyricWave transforms mere text into fully-fledged musical compositions, offering a unique and captivating auditory experience.
+At LyricWave, we merge the power of AudioCraft for melody generation, Sona.ai Bark for voice cloning and song vocals, and harness the capabilities of a Stable Diffusion model to create stunning song cover images. 🎤🖼️
 
 <p align="center">
   <img src="https://img.shields.io/badge/flask-%23000.svg?style=for-the-badge&logo=flask&logoColor=white" />
@@ -17,30 +15,22 @@ LyricWave is a cutting-edge music generation platform that seamlessly fuses song
   <img src="https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white" />
 </p>
 
-## ✨ Key Features
+## Key Features
+- 🎵 **Melody Magic:** The integration with AudioCraft from Meta crafts melodies that perfectly match the lyrical sentiment, resulting in captivating musical compositions.
 
-- **🎵 Melody Crafting**: LyricWave, powered by Magenta AI, creates melodies that match the sentiment and tone of song lyrics, resulting in intricate musical arrangements that resonate with the text's emotional depth.
+- 🎤 **Voice Cloning:** Sona.ai Bark's voice cloning technology provides expressive and lifelike synthetic vocals, ensuring that your songs are beautifully sung.
 
-- **🎤 Voice Synthesis**: Utilizing innovative text-to-speech techniques, LyricWave generates synthetic vocal tracks that capture the lyrical essence, infusing compositions with expressive and lifelike vocals.
+- 🎶 **Harmonious Fusion:** We seamlessly blend AI-generated melodies and synthetic voices to produce harmonious MP3 tracks that offer a unique and immersive listening experience, capturing both the musical and lyrical essence.
 
-- **🎶 Harmonious Fusion**: LyricWave seamlessly blends generated melodies and synthetic voices, producing harmonious MP3 tracks that offer an immersive listening experience, combining both musical and lyrical elements.
+- 🖼️ **Abstract Visuals:** In addition to enchanting music, LyricWave generates mesmerizing abstract images inspired by the song's lyrical content, providing a visual representation of the musical narrative.
 
-- **🎨 Abstract Visuals**: In addition to its auditory allure, LyricWave generates captivating abstract images inspired by the song's lyrical content, offering a unique visual representation of the musical narrative.
+- 📦 **MongoDB Integration:** LyricWave effortlessly integrates with MongoDB to store comprehensive song details, including melodies, vocals, abstract images, and metadata.
 
-- **📦 MongoDB Integration**: LyricWave effortlessly integrates with MongoDB, storing comprehensive details about generated songs, including melodies, vocals, abstract images, and metadata.
+- 🐳 **Docker-Powered Workflow:** Our Docker Compose environment simplifies the deployment and orchestration of the entire music generation pipeline, ensuring a smooth workflow.
 
-- **🐳 Docker-Powered Workflow**: The project is enclosed within a Docker Compose environment, simplifying deployment and orchestration of the entire music generation pipeline, ensuring a smooth workflow.
+- 🚀 **Apache Airflow DAG:** We have modeled this entire music generation process as a DAG in Apache Airflow, making it easy to schedule, monitor, and manage your music creation tasks.
 
-## Technologies Used
-- **Apache Airflow**: An extensible platform for orchestrating complex workflows, Airflow serves as the backbone for scheduling and managing the multi-step music generation process.
-
-- **Magenta AI**: Developed by Google, Magenta AI facilitates creative musical composition and generation, allowing LyricWave to infuse songs with AI-crafted melodies.
-
-- **Flask**: The Flask web framework powers the API component of LyricWave, enabling users to initiate and manage music generation tasks seamlessly.
-
-- **MongoDB**: As a versatile NoSQL database, MongoDB stores and retrieves song data, including melodies, synthetic vocals, and abstract images, ensuring the seamless management of generated content.
-
-- **Docker**: Employing Docker Compose, LyricWave encapsulates its components within containers, promoting consistency and portability across development and deployment environments.
+Whether you're an artist, songwriter, or just someone looking for a unique musical experience, LyricWave has you covered. 📝🎼 Unleash your inner composer and let LyricWave transform your words into beautiful melodies. Get ready to embark on a musical journey like never before! 🚀🎶
 
 ## Project Structure
 LyricFlow's project structure is organized as follows:
