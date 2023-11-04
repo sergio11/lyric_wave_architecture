@@ -1,6 +1,6 @@
 {
   "info": {
-    "name": "Song Generation API",
+    "name": "LyricWave Generation API",
     "description": "Collection for interacting with the Flask API for song generation.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
@@ -17,7 +17,7 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"title\": \"Finding My Glow in the Darkest Hours\",\n  \"text\": \"The rain keeps falling, can't find the light, Dark clouds above, it's a never-ending night. Lost in the shadows, I'm searching for a way, But hope keeps slipping, it's a brand new gray. Oh, this world is heavy, a burden on my chest, I'm feeling broken, I must confess. But I'll keep fighting, I won't let go, In the darkest hours, I'll find my glow. The stars are hiding, can't see them shine, In this lonely hour, I'm yearning for a sign. Dreams shattered like glass, it's hard to breathe, But I'll keep pushing, I won't let grief. Through the tears and sorrow, I'll find my way, In the depths of despair, I'll see the day. Though the road is rocky, I'll walk the mile, With a heavy heart, I'll find my smile. Oh, this world is heavy, a burden on my chest, I'm feeling broken, I must confess. But I'll keep fighting, I won't let go, In the darkest hours, I'll find my glow.\"\n}"
+          "raw": "{\n  \"title\": \"Find My Glow\",\n  \"text\": \"The rain keeps falling, it's a never-ending night, But I'll keep fighting, I won't lose the fight. Though the world is heavy, a burden on my chest, In the darkest hours, I'll find my glow.\", \n  \"keywords\": \"resilience, determination, fight, adversity, challenges, unwavering, inner strength, inspirational, never-ending night, relentless rain, darkest hours, glow.\" , \n  \"music_style_id\": \"style123\", \n  \"description\": \"This song is a powerful and inspirational anthem that conveys a message of resilience and determination. It reflects the idea that even in the face of adversity and challenges, the protagonist remains unwavering and committed to their fight. The relentless rain and the never-ending night symbolize the difficult times in life, while the lyrics emphasize the unyielding spirit of the individual, determined to find their inner strength and radiance during the darkest hours\"\n}"
         },
         "url": {
           "raw": "http://localhost:8086/generate_song",
@@ -112,6 +112,58 @@
           "path": [
             "songs",
             "{song_id}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get Music Styles",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:8086/music_styles",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8086",
+          "path": [
+            "music_styles"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Update Music Styles",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"styles\": [\"Pop\", \"Rock\", \"Jazz\"]\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8086/music_styles",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8086",
+          "path": [
+            "music_styles"
           ]
         }
       },
