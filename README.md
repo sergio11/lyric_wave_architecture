@@ -61,6 +61,13 @@ LyricFlow's project structure is organized as follows:
 
 ### "Find my Glow"
 
+```
+  ♪ The rain keeps falling, it's a never-ending night,
+    But I'll keep fighting, I won't lose the fight.
+    Though the world is heavy, a burden on my chest,
+    In the darkest hours, I'll find my glow. ♪
+```
+
 https://github.com/sergio11/lyric_wave_architecture/assets/6996211/ce870367-051e-4915-b7c4-c5edd4a615c3
 
 * **Meaning**: The song "Find My Glow" is a message of resilience and determination in the face of adversity. Despite the continuous rain and the feeling of an everlasting night, the narrator refuses to give up. The lyrics reflect a sense of heaviness and emotional burden, which could represent life's challenges and struggles.
@@ -138,6 +145,13 @@ https://github.com/sergio11/lyric_wave_architecture/assets/6996211/f93707d1-45fd
 * **Meaning**: The song "Broken Promises" is a reflection on the pain and disappointment that can come from unfulfilled commitments and shattered dreams in a relationship.
 
 ### Wounds of Time
+
+```
+  ♪ Wounds of time, they run so deep,
+    In the dark, my secrets I keep.
+    The echoes of the past, they won't subside,
+    In the shadows of my heart, I silently hide.  ♪
+```
 
 https://github.com/sergio11/lyric_wave_architecture/assets/6996211/d87e5c46-1337-4a5c-a9a1-0a25b117222c
 
