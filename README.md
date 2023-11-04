@@ -163,6 +163,14 @@ https://github.com/sergio11/lyric_wave_architecture/assets/6996211/d87e5c46-1337
 
 * **Meaning**: The song "Wounds of Time" delves into the weight of emotional scars and the secrets kept deep within the narrator's heart.
 
+
+![platform picture](screenshots/screenshot_1.PNG)
+![platform picture](screenshots/screenshot_2.PNG)
+![platform picture](screenshots/screenshot_3.PNG)
+![platform picture](screenshots/screenshot_4.PNG)
+![platform picture](screenshots/screenshot_5.PNG)
+![platform picture](screenshots/screenshot_6.PNG)
+
 ## Getting Started
 1. Clone this repository to your local machine.
 2. Configure environment variables in `.env` to tailor the project settings to your requirements.
