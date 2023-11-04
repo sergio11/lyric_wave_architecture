@@ -155,3 +155,9 @@ Contributions to LyricWave are highly encouraged! If you're interested in adding
 
 ## License
 This project is licensed under the [MIT License](LICENSE).
+
+## Credits
+
+LyricWave is developed and maintained by **Sergio Sánchez Sánchez** (Dream Software). Special thanks to the open-source community and the contributors who have made this project possible.
+If you have any questions, feedback, or suggestions, feel free to reach out at dreamsoftware92@gmail.com.
+
