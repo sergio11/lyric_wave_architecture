@@ -51,6 +51,12 @@ LyricFlow's project structure is organized as follows:
 
 ### "Find my Glow"
 
+#### Song Cover
+
+ ![Find my glow Song image cover](songs/find_my_glow/find_my_glow_song_cover.jpg)
+
+#### Song lyrics
+
 ```
   ♪ The rain keeps falling, it's a never-ending night,
     But I'll keep fighting, I won't lose the fight.
@@ -66,7 +72,7 @@ https://github.com/sergio11/lyric_wave_architecture/assets/6996211/ce870367-051e
 
 #### Song Cover
 
- ![Rise and Shine Song image cover](songs/rise_and_shine/rise_and_shine_song_cover.jpg)
+ ![Rise and shine Song image cover](songs/rise_and_shine/rise_and_shine_song_cover.jpg)
 
 #### Song lyrics
 
@@ -84,7 +90,7 @@ https://github.com/sergio11/lyric_wave_architecture/assets/6996211/3c20e936-4bc3
 
 #### Song Cover
 
-![Rise and Shine Song image cover](songs/fading_echoes/fading_echoes_song_cover.jpg)
+![Fading echoes song image cover](songs/fading_echoes/fading_echoes_song_cover.jpg)
 
 #### Song lyrics
 
@@ -102,7 +108,7 @@ https://github.com/sergio11/lyric_wave_architecture/assets/6996211/50a608b8-a7b2
 
 #### Song Cover
 
-![Rise and Shine Song image cover](songs/fading_memories/fading_memories_song_cover.jpg)
+![Fading memories song image cover](songs/fading_memories/fading_memories_song_cover.jpg)
 
 https://github.com/sergio11/lyric_wave_architecture/assets/6996211/7ec6485f-78f2-4a90-8bbd-09f82fb771be
 
@@ -120,7 +126,7 @@ https://github.com/sergio11/lyric_wave_architecture/assets/6996211/7ec6485f-78f2
 
 #### Song Cover
 
-![Rise and Shine Song image cover](songs/broken_promises/broken_promises_song_cover.jpg)
+![Broken promises song image cover](songs/broken_promises/broken_promises_song_cover.jpg)
 
 #### Song lyrics
 
@@ -135,6 +141,12 @@ https://github.com/sergio11/lyric_wave_architecture/assets/6996211/f93707d1-45fd
 * **Meaning**: The song "Broken Promises" is a reflection on the pain and disappointment that can come from unfulfilled commitments and shattered dreams in a relationship.
 
 ### Wounds of Time
+
+#### Song Cover
+
+![Wounds of time song image cover](songs/wounds_of_time/wounds_of_time_song_cover.jpg)
+
+#### Song lyrics
 
 ```
   ♪ Wounds of time, they run so deep,
