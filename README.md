@@ -59,6 +59,40 @@ LyricFlow's project structure is organized as follows:
 
 - `docker-compose.yml`: Configuration file for Docker Compose to set up the project environment.
 
+### "Find my Glow"
+
+<figure>
+  <audio controls>
+    <source src="./songs/find_my_glow/find_my_glow_final_song.mp3" type="audio/mpeg">
+    Your browser does not support the audio element.
+  </audio>
+</figure>
+
+* **Meaning**: The song "Find My Glow" is a message of resilience and determination in the face of adversity. Despite the continuous rain and the feeling of an everlasting night, the narrator refuses to give up. The lyrics reflect a sense of heaviness and emotional burden, which could represent life's challenges and struggles.
+
+### "Rise and Shine"
+
+<figure>
+  <audio controls>
+    <source src="./songs/rise_and_shine/rise_and_shine_final_song.mp3" type="audio/mpeg">
+    Your browser does not support the audio element.
+  </audio>
+</figure>
+
+* **Meaning**: The song "Rise and Shine" is an uplifting message of hope and empowerment. It encourages the listener to embrace their inner strength and face the world with a positive attitude."
+
+### "Fading Echoes"
+
+<figure>
+  <audio controls>
+    <source src="./songs/fading_echoes/fading_echoes_voice_final_song.mp3" type="audio/mpeg">
+    Your browser does not support the audio element.
+  </audio>
+</figure>
+
+* **Meaning**: This song is about loss and the passage of time. It captures the feeling that memories of a loved one fade over time, leaving behind a sense of melancholy.
+
+
 ## Getting Started
 1. Clone this repository to your local machine.
 2. Configure environment variables in `.env` to tailor the project settings to your requirements.
