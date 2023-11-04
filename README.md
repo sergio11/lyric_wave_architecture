@@ -47,22 +47,9 @@ Whether you're an artist, songwriter, or just someone looking for a unique music
 
 With this technology stack, LyricWave offers a unique and powerful music generation experience. Experience the magic of AI-generated music today! 🎶🚀
 
-## Project Structure
-LyricFlow's project structure is organized as follows:
+## Song Examples
 
-- `dags/`: Apache Airflow DAGs and custom operators for orchestrating the music generation pipeline.
-
-- `operators/`: Custom Airflow operators for generating melodies, synthesizing voices, combining audio, and more.
-
-- `api/`: A Flask-based API that facilitates the initiation of music generation tasks and audio streaming.
-
-- `models/`: Contains pre-trained models and configurations utilized by Magenta AI for melody generation.
-
-- `images/`: Stores abstract images generated from song lyrics, providing a unique visual representation of each composition.
-
-- `requirements.txt`: Lists Python dependencies required for the project.
-
-- `docker-compose.yml`: Configuration file for Docker Compose to set up the project environment.
+In this section, you'll find a collection of AI-generated songs, each with its unique cover art and lyrics. Dive into the world of music created by LyricWave and discover the diversity of melodies and emotions that AI can craft. Explore these musical pieces, listen to their harmonious tunes, and appreciate the artistry of AI-driven music generation.
 
 ### "Find my Glow"
 
