@@ -67,7 +67,17 @@ https://github.com/sergio11/lyric_wave_architecture/assets/6996211/ce870367-051e
 
 ### "Rise and Shine"
 
+#### Song Cover
+
  ![Rise and Shine Song image cover](songs/rise_and_shine/rise_and_shine_song_cover.jpg)
+
+#### Song lyrics
+
+```
+  ♪ Rise and shine, you're a star so bright, With your spirit strong,
+   take flight, In your eyes, a world of possibility,
+   Embrace the day, and set your spirit free. ♪
+```
 
 https://github.com/sergio11/lyric_wave_architecture/assets/6996211/3c20e936-4bc3-4c78-8ffe-c44ba9d03f43
 
@@ -75,7 +85,17 @@ https://github.com/sergio11/lyric_wave_architecture/assets/6996211/3c20e936-4bc3
 
 ### "Fading Echoes"
 
+#### Song Cover
+
 ![Rise and Shine Song image cover](songs/fading_echoes/fading_echoes_song_cover.jpg)
+
+#### Song lyrics
+
+```
+  ♪ I'm lost in the shadows of our yesterdays, Fading echoes,
+    in a melancholy haze. Your absence lingers, in the spaces between,
+    In this quiet solitude, I'm forever unseen. ♪
+```
 
 https://github.com/sergio11/lyric_wave_architecture/assets/6996211/50a608b8-a7b2-4a44-966d-e1b2262ae336
 
@@ -83,15 +103,35 @@ https://github.com/sergio11/lyric_wave_architecture/assets/6996211/50a608b8-a7b2
 
 ### "Fading Memories"
 
+#### Song Cover
+
 ![Rise and Shine Song image cover](songs/fading_memories/fading_memories_song_cover.jpg)
 
 https://github.com/sergio11/lyric_wave_architecture/assets/6996211/7ec6485f-78f2-4a90-8bbd-09f82fb771be
+
+#### Song lyrics
+
+```
+  ♪ I'm drowning in these fading memories, Lost in time,
+    lost at sea. Your ghost still haunts my heart, it seems,
+    In this endless night, I'm lost in dreams. ♪
+```
 
 * **Meaning**: The song "Fading Memories" is a melancholic reflection on the experience of loss and nostalgia. The lyrics paint a picture of someone who is deeply affected by fading memories of a past love.
 
 ### "Broken Promises"
 
+#### Song Cover
+
 ![Rise and Shine Song image cover](songs/broken_promises/broken_promises_song_cover.jpg)
+
+#### Song lyrics
+
+```
+  ♪ Broken promises, shattered dreams, In the silence,
+    nothing's as it seems. Our love, once strong, now torn apart,
+    In the ruins of our world, I search for a fresh start.  ♪
+```
 
 https://github.com/sergio11/lyric_wave_architecture/assets/6996211/f93707d1-45fd-473c-8395-d346079bb4d1
 
