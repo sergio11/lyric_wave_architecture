@@ -35,6 +35,7 @@ class GenerateMelodyCoverOperator(BaseCustomOperator):
     ):
         super().__init__(*args, **kwargs)
 
+
     def execute(self, context):
         self._log_to_mongodb("Starting execution of GenerateAbstractImageOperator", context, "INFO")
 
@@ -42,14 +43,12 @@ class GenerateMelodyCoverOperator(BaseCustomOperator):
         melody_id = context['task_instance'].xcom_pull(task_ids='generate_voice_task')['melody_id']
         self._log_to_mongodb(f"Retrieved melody_id: {melody_id}", context, "INFO")
 
-        # Connect to MongoDB and retrieve song text
-        with MongoClient(self.mongo_uri) as client:
-            db = client[self.mongo_db]
-            melodies_collection = db[self.mongo_db_collection]
-
-            melody_info = melodies_collection.find_one({"_id": ObjectId(melody_id)})
-            song_text = melody_info.get("song_text")
-            self._log_to_mongodb(f"Retrieved song text for melody_id: {melody_id}", context, "INFO")
+        # Get a reference to the MongoDB collection
+        collection = self._get_mongodb_collection()
+    
+        melody_info = collection.find_one({"_id": ObjectId(melody_id)})
+        song_text = melody_info.get("song_text")
+        self._log_to_mongodb(f"Retrieved song text for melody_id: {melody_id}", context, "INFO")
 
         # Define image dimensions
         image_size = (800, 600)
@@ -108,7 +107,7 @@ class GenerateMelodyCoverOperator(BaseCustomOperator):
         self._log_to_mongodb(f"Image URL: {image_url}", context, "INFO")
 
         # Update the document with the image URL
-        melodies_collection.update_one(
+        collection.update_one(
             {"_id": ObjectId(melody_id)},
             {"$set": {"abstract_image_url": image_url}},
         )

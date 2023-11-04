@@ -89,10 +89,8 @@ class GenerateMelodyOperator(BaseCustomOperator):
         song_info_id = dag_run_conf['song_info_id']
         self._log_to_mongodb(f"Received song_info_id: {song_info_id}", context, "INFO")
 
-        # Connect to MongoDB and retrieve song information
-        client = MongoClient(self.mongo_uri)
-        db = client[self.mongo_db]
-        collection = db[self.mongo_db_collection]
+        # Get a reference to the MongoDB collection
+        collection = self._get_mongodb_collection()
         self._log_to_mongodb("Connected to MongoDB", context, "INFO")
 
         song_info = collection.find_one({"_id": ObjectId(song_info_id)})
