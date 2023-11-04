@@ -62,38 +62,38 @@ class GenerateVoiceOperator(BaseCustomOperator):
         # Retrieve melody_id from the previous task using XCom
         melody_id = context['task_instance'].xcom_pull(task_ids='generate_melody_task')['melody_id']
         self._log_to_mongodb(f"Retrieved melody_id: {melody_id}", context, "INFO")
-        # Connect to MongoDB and retrieve song_text
-        with MongoClient(self.mongo_uri) as client:
-            self._log_to_mongodb(f"Connected to MongoDB", context, "INFO")
-            db = client[self.mongo_db]
-            collection = db[self.mongo_db_collection]
-            
-            melody_info = collection.find_one({"_id": ObjectId(melody_id)})
-            song_text = melody_info.get("song_text")
-            self._log_to_mongodb(f"Retrieved song_text from MongoDB: {song_text}", context, "INFO")
-            
-            try:
-                self._log_to_mongodb(f"Generated speech using Suno Bark", context, "INFO")
-                voice_file_path = self._generate_voice(melody_id, song_text)
-                self._log_to_mongodb("Voice generated successfully", context, "INFO")
-            except Exception as e:
-                error_message = f"An error occurred while generating the voice: {e}"
-                self._log_to_mongodb(error_message, context, "ERROR")
-                raise Exception(error_message)
-            
-            self._log_to_mongodb(f"Storing voice in MinIO for '{melody_id}'", context, "INFO")
 
-            # Store the generated .wav file in MinIO
-            self._store_file_in_minio(
-                local_file_path=voice_file_path, 
-                minio_object_name=voice_file_path,
-                context=context, 
-                content_type="audio/wav")
+        collection = self._get_mongodb_collection()
+        self._log_to_mongodb(f"Connected to MongoDB", context, "INFO")
 
-            # Update the BSON document with the MinIO object path
-            melody_info['voice_file_path'] = voice_file_path
-            self._log_to_mongodb(f"Updated MongoDB document with voice_file_path: {voice_file_path}", context, "INFO")
-            # Update the document in MongoDB
-            collection.update_one({"_id": melody_info['_id']}, {"$set": melody_info})
-            self._log_to_mongodb(f"Updated MongoDB document with ID: {melody_id}", context, "INFO")
-            return {"melody_id": str(melody_id)}
+        melody_info = collection.find_one({"_id": ObjectId(melody_id)})
+        song_text = melody_info.get("song_text")
+        self._log_to_mongodb(f"Retrieved song_text from MongoDB: {song_text}", context, "INFO")
+            
+        try:
+            self._log_to_mongodb(f"Generated speech using Suno Bark", context, "INFO")
+            voice_file_path = self._generate_voice(melody_id, song_text)
+            self._log_to_mongodb("Voice generated successfully", context, "INFO")
+        except Exception as e:
+            error_message = f"An error occurred while generating the voice: {e}"
+            self._log_to_mongodb(error_message, context, "ERROR")
+            raise Exception(error_message)
+            
+        self._log_to_mongodb(f"Storing voice in MinIO for '{melody_id}'", context, "INFO")
+
+        # Store the generated .wav file in MinIO
+        self._store_file_in_minio(
+            local_file_path=voice_file_path, 
+            minio_object_name=voice_file_path,
+            context=context, 
+            content_type="audio/wav")
+
+        # Update the BSON document with the MinIO object path
+        melody_info['voice_file_path'] = voice_file_path
+        self._log_to_mongodb(f"Updated MongoDB document with voice_file_path: {voice_file_path}", context, "INFO")
+        # Update the document in MongoDB
+        collection.update_one({"_id": melody_info['_id']}, {"$set": melody_info})
+        self._log_to_mongodb(f"Updated MongoDB document with ID: {melody_id}", context, "INFO")
+        return {"melody_id": str(melody_id)}
+            
+            

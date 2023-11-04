@@ -39,15 +39,13 @@ class CombineAudioOperator(BaseCustomOperator):
         melody_id = context['task_instance'].xcom_pull(task_ids='generate_voice_task')['melody_id']
         self._log_to_mongodb(f"Retrieved melody_id: {melody_id}", context, "INFO")
 
-        # Connect to MongoDB and retrieve melody MIDI and voice audio
-        with MongoClient(self.mongo_uri) as client:
-            db = client[self.mongo_db]
-            collection = db[self.mongo_db_collection]
+        # Get a reference to the MongoDB collection
+        collection = self._get_mongodb_collection()
 
-            melody_info = collection.find_one({"_id": ObjectId(melody_id)})
-            melody_file_path = melody_info.get("melody_file_path")
-            voice_file_path = melody_info.get("voice_file_path")
-            self._log_to_mongodb(f"Retrieved melody WAV and voice audio paths for melody_id: {melody_id}", context, "INFO")
+        melody_info = collection.find_one({"_id": ObjectId(melody_id)})
+        melody_file_path = melody_info.get("melody_file_path")
+        voice_file_path = melody_info.get("voice_file_path")
+        self._log_to_mongodb(f"Retrieved melody WAV and voice audio paths for melody_id: {melody_id}", context, "INFO")
 
         # Connect to MinIO and download the Melody and voice audio
         minio_client = self._get_minio_client(context)
