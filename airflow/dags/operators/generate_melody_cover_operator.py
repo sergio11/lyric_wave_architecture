@@ -1,17 +1,12 @@
 from airflow.utils.decorators import apply_defaults
-from PIL import Image, ImageDraw
-import hashlib
-import random
 from operators.base_custom_operator import BaseCustomOperator
-from pymongo import MongoClient
-import io
 from bson import ObjectId
+from diffusers import StableDiffusionPipeline
+import torch
 
 class GenerateMelodyCoverOperator(BaseCustomOperator):
-
     """
-    Generates an abstract image based on the song text associated with a melody,
-    stores the image in MinIO, and updates the MongoDB document with the MinIO URL.
+    Operator to generate a melody cover image from text using the Stable Diffusion model.
 
     :param mongo_uri: MongoDB connection URI.
     :type mongo_uri: str
@@ -28,6 +23,7 @@ class GenerateMelodyCoverOperator(BaseCustomOperator):
     :param minio_bucket_name: MinIO bucket name for storing generated images.
     :type minio_bucket_name: str
     """
+
     @apply_defaults
     def __init__(
         self,
@@ -35,6 +31,24 @@ class GenerateMelodyCoverOperator(BaseCustomOperator):
     ):
         super().__init__(*args, **kwargs)
 
+    def _generate_image_from_text(self, melody_id, song_text):
+        """
+        Generate an image based on the provided text using the Stable Diffusion model.
+
+        :param melody_id: ID of the melody.
+        :type melody_id: str
+        :param song_text: Text description of the song.
+        :type song_text: str
+        :return: File path to the generated song cover image.
+        :rtype: str
+        """
+        # Load the Stable Diffusion model using the specified checkpoint
+        pipe = StableDiffusionPipeline.from_pretrained("runwayml/stable-diffusion-v1-5", torch_dtype=torch.float32)
+        # Generate an image based on the provided text using the model
+        image = pipe(song_text).images[0]
+        song_cover_image = f"{melody_id}_cover.jpg"
+        image.save(song_cover_image)
+        return song_cover_image
 
     def execute(self, context):
         self._log_to_mongodb("Starting execution of GenerateAbstractImageOperator", context, "INFO")
@@ -50,68 +64,28 @@ class GenerateMelodyCoverOperator(BaseCustomOperator):
         song_text = melody_info.get("song_text")
         self._log_to_mongodb(f"Retrieved song text for melody_id: {melody_id}", context, "INFO")
 
-        # Define image dimensions
-        image_size = (800, 600)
-
-        # Create a new image with a white background
-        image = Image.new("RGB", image_size, (255, 255, 255))
-        draw = ImageDraw.Draw(image)
-
-        # Use a hash of the song text to seed the random generation
-        text_hash = int(hashlib.md5(song_text.encode()).hexdigest(), 16)
-        random.seed(text_hash)
-
-        # Generate abstract patterns with various shapes and colors
-        num_shapes = 100
-        for _ in range(num_shapes):
-            shape_type = random.choice(["ellipse", "rectangle", "line"])
-            x = random.randint(0, image_size[0])
-            y = random.randint(0, image_size[1])
-            size = random.randint(10, 100)
-            color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
-
-            if shape_type == "ellipse":
-                draw.ellipse([x, y, x + size, y + size], fill=color)
-            elif shape_type == "rectangle":
-                draw.rectangle([x, y, x + size, y + size], fill=color)
-            elif shape_type == "line":
-                end_x = random.randint(0, image_size[0])
-                end_y = random.randint(0, image_size[1])
-                draw.line([(x, y), (end_x, end_y)], fill=color, width=2)
-
-        # Convert image to bytes
-        image_bytes = io.BytesIO()
-        image.save(image_bytes, format="PNG")
-        image_bytes.seek(0)
-
-        # Store the generated abstract image in MinIO
-        # Get MinIO client
-        minio_client = self._get_minio_client(context)
         try:
-            image_object_name = f"{melody_id}_abstract_image.png"
-            minio_client.put_object(
-                bucket_name=self.minio_bucket_name,
-                object_name=image_object_name,
-                data=image_bytes,
-                length=len(image_bytes.getvalue()),
-                content_type="image/png",
-            )
-            self._log_to_mongodb(f"Abstract image stored in MinIO as {image_object_name}", context, "INFO")
+            self._log_to_mongodb("Generating Song cover...", context, "INFO")
+            song_cover_image = self._generate_image_from_text(melody_id, song_text)
+            self._log_to_mongodb("Song cover generated successfully", context, "INFO")
         except Exception as e:
-            self._log_to_mongodb(f"Error storing abstract image in MinIO: {e}", context, "ERROR")
+            error_message = f"An error occurred while generating the song cover: {e}"
+            self._log_to_mongodb(error_message, context, "ERROR")
+            raise Exception(error_message)
+        
+        # Store the generated .jpg file in MinIO
+        self._store_file_in_minio(
+            local_file_path=song_cover_image, 
+            minio_object_name=song_cover_image,
+            context=context, 
+            content_type="image/jpeg")
 
-        # Update the MongoDB document with the MinIO URL of the image
-        image_url = minio_client.presigned_get_object(
-            self.minio_bucket_name, image_object_name
-        )
-        self._log_to_mongodb(f"Image URL: {image_url}", context, "INFO")
-
-        # Update the document with the image URL
+        # Update the document with the song cover
         collection.update_one(
             {"_id": ObjectId(melody_id)},
-            {"$set": {"abstract_image_url": image_url}},
+            {"$set": {"song_cover_file": song_cover_image}},
         )
-        self._log_to_mongodb("Updated MongoDB document with image URL", context, "INFO")
-        self._log_to_mongodb("GenerateAbstractImageOperator execution completed", context, "INFO")
+        self._log_to_mongodb("Updated MongoDB document with song cover", context, "INFO")
+        self._log_to_mongodb("GenerateMelodyCoverOperator execution completed", context, "INFO")
 
         return {"melody_id": str(melody_id)}
