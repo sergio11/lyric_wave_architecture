@@ -1,0 +1,5 @@
+flask==3.0.0
+requests==2.31.0
+pymongo==4.5.0
+minio==7.1.17
+gunicorn
