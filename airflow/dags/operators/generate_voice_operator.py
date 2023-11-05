@@ -35,22 +35,26 @@ class GenerateVoiceOperator(BaseCustomOperator):
     def _generate_voice(self, song_text): 
         """
         Generates voice from a given song text using the 'suno/bark' model.
-
+        
         Args:
-            song_text (str): The text of the song to be transformed into voice.
-
+            song_text (str): The text of the song to be transformed into voice, which starts and ends with the musical note symbol "♪."
+        
         Returns:
             str: The name of the generated voice audio file.
 
-        This method uses the 'suno/bark' model from the Transformers library to convert the provided song text into voice.
-        It saves the generated audio as a WAV file, and the file name is based on the `song_id`.
+        This method uses the 'suno/bark' model from the Transformers library to convert the provided song text into voice. 
+        The input song_text is expected to start and end with "♪," indicating the beginning and end of a musical performance. 
+        By including these symbols, you provide explicit cues for the model to generate audio that is coherent with the musical context, 
+        ensuring a smoother transition in the generated voice. The resulting audio is saved as a WAV file with a name based on the `song_id`.
 
         Returns the name of the generated voice audio file, which can be used to reference the stored audio.
         """
+        # Add '♪' at the beginning and end of the song_text
+        song_text_with_symbols = '♪' + song_text + '♪'
         transformers = importlib.import_module("transformers")
         processor = transformers.AutoProcessor.from_pretrained("suno/bark")
         model = transformers.BarkModel.from_pretrained("suno/bark")
-        inputs = processor(song_text)
+        inputs = processor(song_text_with_symbols)
         audio_array = model.generate(**inputs)
         audio_array = audio_array.cpu().numpy().squeeze()
         with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as temp_file:
