@@ -193,6 +193,36 @@ The following table provides descriptions and examples of tasks available in the
 | `rake lyricwave:login`                     | Authenticate with existing Docker credentials.                                                                              | `rake lyricwave:login`                        |
 | `rake lyricwave:check_deployment_file`     | Check the availability of the deployment file (docker-compose.yml).                                                        | `rake lyricwave:check_deployment_file`        |
 
+##  Services Overview
+
+Below is a list of services available locally, each with its associated port number and a short description of its purpose. These services are used in the Lyric Wave architecture for various functions, including data storage, database management, and API services. Understanding these services and their ports will be helpful when working with the Lyric Wave environment.
+
+| Service                                | Port    | Purpose                                                         |
+|----------------------------------------|---------|-----------------------------------------------------------------|
+| Elasticsearch                           | 9200    | Powerful open-source search and analytics engine.                |
+| Minio 1                                 | 9000    | Object storage service for storing data, compatible with S3.    |
+| Minio 2                                 | 9000    | Object storage service for storing data, compatible with S3.    |
+| Minio 3                                 | 9000    | Object storage service for storing data, compatible with S3.    |
+| Minio HAProxy                           | 9000    | Load balancer for Minio services.                                |
+| MongoDB                                | 27017   | Database for Apache Airflow.                                    |
+| MongoDB Express                        | 8087    | Web-based admin interface for MongoDB.                           |
+| Redis                                  | 6379    | Message broker for Apache Airflow.                               |
+| PostgreSQL                             | 5432    | Database for Apache Airflow.                                    |
+| pgAdmin                                | 8085    | Web-based admin interface for PostgreSQL.                         |
+| Apache Airflow Webserver               | 8080    | Web-based user interface for Apache Airflow.                     |
+| Celery Flower                          | 5555, 8080, 8793 | Web-based tool for monitoring and administrating Celery clusters. |
+| Apache Airflow Scheduler               | 8084    | Scheduler component for Apache Airflow.                          |
+| Apache Airflow Worker 1                | -       | Worker component for Apache Airflow.                             |
+| Apache Airflow Worker 2                | -       | Worker component for Apache Airflow.                             |
+| Song Generation API Service 1          | -       | API service for generating songs.                                |
+| Song Generation API Service 2          | -       | API service for generating songs.                                |
+| Song Generation API Service 3          | -       | API service for generating songs.                                |
+| Song Generation HAProxy                | 8086    | Load balancer for song generation services.                     |
+| Streaming API Service 1                | -       | API service for streaming data.                                  |
+| Streaming API Service 2                | -       | API service for streaming data.                                  |
+| Streaming API Service 3                | -       | API service for streaming data.                                  |
+| Streaming HAProxy                      | 8088    | Load balancer for streaming services.                            |
+
 
 ## Getting Started
 1. Clone this repository to your local machine.
