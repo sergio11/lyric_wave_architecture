@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 # Get MongoDB connection details from environment variables
 MONGO_URI = os.environ.get("MONGO_URI")
 MONGO_DB = os.environ.get("MONGO_DB")
-MONGO_COLLECTION = os.environ.get("MONGO_COLLECTION")
+MONGO_COLLECTION = os.environ.get("MONGO_DB_COLLECTION")
 
 MINIO_ENDPOINT = os.environ.get("MINIO_ENDPOINT")
 MINIO_ACCESS_KEY = os.environ.get("MINIO_ACCESS_KEY")
@@ -90,7 +90,7 @@ def show_image(song_id):
     """
     song_info = songs_collection.find_one({"_id": ObjectId(song_id)})
     if song_info:
-        return _stream_file_from_minio(song_info, MINIO_BUCKET_NAME, "image_file_name", "image/jpeg", "image.jpg")
+        return _stream_file_from_minio(song_info, MINIO_BUCKET_NAME, "song_cover_name", "image/jpeg", "image.jpg")
     else:
         return "Song not found", 404
 
@@ -117,7 +117,7 @@ def _stream_file_from_minio(song_info, minio_bucket_name, file_key, content_type
         headers = {
             'Content-Type': content_type,
             'Cache-Control': 'no-store',
-            'Content-Disposition': f'inline; filename={song_info[file_key]}.{file_extension}',
+            'Content-Disposition': f'inline; filename="{song_info[file_key]}.{file_extension}"',
             'Accept-Ranges': 'none'
         }
 
