@@ -1,4 +1,4 @@
-from flask import Flask, abort, request, jsonify, Response
+from flask import Flask, request, jsonify, Response
 import os
 import requests
 from pymongo import MongoClient
@@ -46,8 +46,7 @@ def get_music_styles():
     try:
         # Retrieve the list of music styles from the collection
         music_styles_cursor = db['music_styles'].find({})
-        styles = [style['style'] for style in music_styles_cursor]
-        
+        styles = [{"style_id": str(style['_id']), "style_name": style['style']} for style in music_styles_cursor]
         response_data = {
             "status": "success",
             "code": 200,
@@ -152,7 +151,7 @@ def generate_song():
             # Configure DAG run parameters, including song_info_id
             dag_run_conf = {
                 "conf": {
-                    "song_info_id": str(song_info_id),
+                    "song_id": str(song_info_id),
                 },
                 "dag_run_id": dag_run_id,
                 "logical_date": logical_date_str,
@@ -336,19 +335,23 @@ def delete_song_by_id(song_id):
 def validate_song_text(song_text):
     max_length = 200
     if len(song_text) > max_length:
-        abort(400, "Song text exceeds the maximum allowed length (200 characters).")
+        return jsonify({"message": "Song text exceeds the maximum allowed length (200 characters)."}), 400
 
 # Helper function to check if a song with the same title already exists
 def check_existing_song(song_title):
     existing_song = fs.find_one({"song_title": song_title})
     if existing_song:
-        abort(400, "A song with the same title already exists.")
+        return jsonify({"message": "A song with the same title already exists."}), 400
 
 # Helper function to check if a music style with the specified ID exists
 def check_music_style(style_id):
-    music_style = db['music_styles'].find_one({"_id": ObjectId(style_id)})
+    try:
+        style_id = ObjectId(style_id)
+    except Exception:
+        return jsonify({"message": "Invalid music style ID format. Must be a valid ObjectId."}), 400
+    music_style = db['music_styles'].find_one({"_id": style_id})
     if not music_style:
-        abort(400, "Invalid music style ID. The specified style does not exist.")
+        return jsonify({"message": "Invalid music style ID. The specified style does not exist."}), 400
 
 # Start the Flask application if this script is executed directly
 if __name__ == '__main__':
