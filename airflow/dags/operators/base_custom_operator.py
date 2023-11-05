@@ -37,16 +37,23 @@ class BaseCustomOperator(BaseOperator):
         self.minio_secret_key = minio_secret_key
         self.minio_bucket_name = minio_bucket_name
 
-    def _get_mongodb_collection(self):
+    def _get_mongodb_collection(self, collection_name=None):
         """
         Private method to securely obtain a reference to the MongoDB collection.
+
+        Args:
+            collection_name (str, optional): The name of the MongoDB collection to retrieve. If not provided, the default collection is used.
 
         Returns:
             pymongo.collection.Collection: A reference to the desired MongoDB collection.
         """
         client = MongoClient(self.mongo_uri)
         db = client[self.mongo_db]
-        return db[self.mongo_db_collection]
+        
+        if collection_name:
+            return db[collection_name]
+        else:
+            return db[self.mongo_db_collection]
 
     def _log_to_mongodb(self, message, context, log_level):
         """

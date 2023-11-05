@@ -3,7 +3,6 @@ from operators.base_custom_operator import BaseCustomOperator
 from bson import ObjectId
 from diffusers import StableDiffusionPipeline
 import torch
-import os
 from datetime import datetime
 import tempfile
 

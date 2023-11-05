@@ -61,6 +61,20 @@ class GenerateMelodyOperator(BaseCustomOperator):
             sampling_rate = model.config.audio_encoder.sampling_rate
             scipy.io.wavfile.write(wav_file_path, rate=sampling_rate, data=audio_values[0, 0].numpy())
         return wav_file_path
+    
+    def _get_music_style_info(self, style_id):
+        """
+        Retrieves music style details based on the style_id from MongoDB's music_styles collection.
+
+        Args:
+            style_id (str): The music style ID to retrieve.
+
+        Returns:
+            dict: Music style details if found, or None.
+        """
+        collection = self._get_mongodb_collection(collection_name='music_styles')
+        style_info = collection.find_one({"_id": ObjectId(style_id)})
+        return style_info
         
 
     def execute(self, context):
@@ -106,6 +120,18 @@ class GenerateMelodyOperator(BaseCustomOperator):
         # Retrieve song title, text, and description from song_info
         song_title = song_info.get('song_title')
         song_text = song_info.get('song_text')
+
+        # Retrieve music_style_id from song_info
+        music_style_id = song_info.get('music_style_id')
+    
+        # Retrieve music style details from MongoDB
+        style_info = self._get_music_style_info(music_style_id)
+
+        if style_info:
+            style_name = style_info.get('style_name')
+            song_text = f"[{style_name}] {song_text}"
+        else:
+            self._log_to_mongodb("Music style not found in MongoDB", context, "WARNING")
 
         try:
             self._log_to_mongodb("Generating melody...", context, "INFO")
