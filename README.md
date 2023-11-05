@@ -4,6 +4,8 @@ Step into the world of music with LyricWave, a cutting-edge AI-driven platform t
 
 At LyricWave, we merge the power of AudioCraft for melody generation, Sona.ai Bark for voice cloning and song vocals, and harness the capabilities of a Stable Diffusion model to create stunning song cover images. 🎤🖼️
 
+LyricWave isn't just a platform; it's a gateway to a new dimension of musical expression. It's a world where technology and creativity harmonize, resulting in songs that touch your heart and soul. With LyricWave, you can explore, experiment, and embark on a musical journey like never before. 🚀🎶
+
 <p align="center">
   <img src="https://img.shields.io/badge/flask-%23000.svg?style=for-the-badge&logo=flask&logoColor=white" />
   <img src="https://img.shields.io/badge/Apache%20Airflow-017CEE?style=for-the-badge&logo=Apache%20Airflow&logoColor=white" />
@@ -32,22 +34,24 @@ At LyricWave, we merge the power of AudioCraft for melody generation, Sona.ai Ba
 
 Whether you're an artist, songwriter, or just someone looking for a unique musical experience, LyricWave has you covered. 📝🎼 Unleash your inner composer and let LyricWave transform your words into beautiful melodies. Get ready to embark on a musical journey like never before! 🚀🎶
 
-## Project Structure
-LyricFlow's project structure is organized as follows:
+## Technologies Used
 
-- `dags/`: Apache Airflow DAGs and custom operators for orchestrating the music generation pipeline.
+- **Sona.AI Bark 🐶:** Sona.AI Bark is a transformer-based text-to-audio model created by Suno. Bark can generate highly realistic, multilingual speech as well as other audio, including music, background noise, and simple sound effects. The model can also produce nonverbal communications like laughing, sighing, and crying. These pretrained model checkpoints are available for commercial use.
+- **MusicGen from AudioCraft 🎵:** MusicGen is a simple and controllable model for music generation provided by AudioCraft. It is a single-stage auto-regressive Transformer model trained over a 32 kHz EnCodec tokenizer with 4 codebooks sampled at 50 Hz. Unlike existing methods, MusicGen doesn't require self-supervised semantic representation, and it generates all 4 codebooks in one pass. It uses 20,000 hours of licensed music for training, including an internal dataset of 10,000 high-quality music tracks as well as ShutterStock and Pond5 music data.
+- **Stable Diffusion Model 🖼️:** The Stable Diffusion Model is a latent text-to-image diffusion model capable of generating photorealistic images from any text input. It's based on diffusion technology and is capable of producing stunning visual representations based on text.
+- **Apache Airflow 🛠️:** Apache Airflow is an extensible platform for orchestrating complex workflows. In the context of LyricWave, it's used to schedule and manage the music generation process.
+- **Flask 📡:** Flask is a lightweight web framework used to build the API that allows users to initiate and manage music generation tasks in LyricWave.
+- **MongoDB 📊:** MongoDB is a versatile NoSQL database used to store and retrieve information about generated songs, including melodies, synthetic voices, abstract images, and metadata.
+- **MinIO 🗄️:** MinIO is an open-source object storage server used to store generated files, such as images and audio files.
+- **HAProxy 🔄:** HAProxy is a load balancer responsible for managing traffic between various components of LyricWave.
+- **Redis 📦:** Redis is an in-memory database used to store temporary data and facilitate communication between LyricWave services.
+- **Celery Flower 🌸:** Celery Flower is a monitoring and management tool for Celery, which handles the execution of asynchronous tasks in the LyricWave platform.
 
-- `operators/`: Custom Airflow operators for generating melodies, synthesizing voices, combining audio, and more.
+With this technology stack, LyricWave offers a unique and powerful music generation experience. Experience the magic of AI-generated music today! 🎶🚀
 
-- `api/`: A Flask-based API that facilitates the initiation of music generation tasks and audio streaming.
+## Song Examples
 
-- `models/`: Contains pre-trained models and configurations utilized by Magenta AI for melody generation.
-
-- `images/`: Stores abstract images generated from song lyrics, providing a unique visual representation of each composition.
-
-- `requirements.txt`: Lists Python dependencies required for the project.
-
-- `docker-compose.yml`: Configuration file for Docker Compose to set up the project environment.
+In this section, you'll find a collection of AI-generated songs, each with its unique cover art and lyrics. Dive into the world of music created by LyricWave and discover the diversity of melodies and emotions that AI can craft. Explore these musical pieces, listen to their harmonious tunes, and appreciate the artistry of AI-driven music generation.
 
 ### "Find my Glow"
 
@@ -158,6 +162,14 @@ https://github.com/sergio11/lyric_wave_architecture/assets/6996211/f93707d1-45fd
 https://github.com/sergio11/lyric_wave_architecture/assets/6996211/d87e5c46-1337-4a5c-a9a1-0a25b117222c
 
 * **Meaning**: The song "Wounds of Time" delves into the weight of emotional scars and the secrets kept deep within the narrator's heart.
+
+
+![platform picture](screenshots/screenshot_1.PNG)
+![platform picture](screenshots/screenshot_2.PNG)
+![platform picture](screenshots/screenshot_3.PNG)
+![platform picture](screenshots/screenshot_4.PNG)
+![platform picture](screenshots/screenshot_5.PNG)
+![platform picture](screenshots/screenshot_6.PNG)
 
 ## Getting Started
 1. Clone this repository to your local machine.
