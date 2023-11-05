@@ -3,8 +3,9 @@ from pydub import AudioSegment
 from operators.base_custom_operator import BaseCustomOperator
 from bson import ObjectId
 import tempfile
+from datetime import datetime
 
-class CombineAudioOperator(BaseCustomOperator):
+class GenerateSongOperator(BaseCustomOperator):
 
     """
     Combines a melody and voice audio and stores the combined audio in MinIO.
@@ -32,27 +33,27 @@ class CombineAudioOperator(BaseCustomOperator):
         super().__init__(*args, **kwargs)
 
     def execute(self, context):
-        self._log_to_mongodb("Starting execution of CombineAudioOperator", context, "INFO")
+        self._log_to_mongodb("Starting execution of GenerateSongOperator", context, "INFO")
 
         # Retrieve melody_id from the previous task using XCom
-        melody_id = context['task_instance'].xcom_pull(task_ids='generate_voice_task')['melody_id']
-        self._log_to_mongodb(f"Retrieved melody_id: {melody_id}", context, "INFO")
+        song_id = context['task_instance'].xcom_pull(task_ids='generate_voice_task')['song_id']
+        self._log_to_mongodb(f"Retrieved song_id: {song_id}", context, "INFO")
 
         # Get a reference to the MongoDB collection
         collection = self._get_mongodb_collection()
 
-        melody_info = collection.find_one({"_id": ObjectId(melody_id)})
-        melody_file_path = melody_info.get("melody_file_path")
-        voice_file_path = melody_info.get("voice_file_path")
+        song_info = collection.find_one({"_id": ObjectId(song_id)})
+        melody_file_name = song_info.get("melody_file_name")
+        voice_file_name = song_info.get("voice_file_name")
 
-        self._log_to_mongodb(f"Retrieved melody WAV and voice audio paths for melody_id: {melody_id}", context, "INFO")
+        self._log_to_mongodb(f"Retrieved melody WAV and voice audio paths for song_id: {song_id}", context, "INFO")
 
         # Connect to MinIO and download the Melody and voice audio
         minio_client = self._get_minio_client(context)
 
         try:
-            melody_file_data = minio_client.get_object(self.minio_bucket_name, melody_file_path)
-            voice_file_data = minio_client.get_object(self.minio_bucket_name, voice_file_path)
+            melody_file_data = minio_client.get_object(self.minio_bucket_name, melody_file_name)
+            voice_file_data = minio_client.get_object(self.minio_bucket_name, voice_file_name)
 
             with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as melody_temp_file:
                 melody_temp_file_path = melody_temp_file.name
@@ -93,27 +94,29 @@ class CombineAudioOperator(BaseCustomOperator):
                 combined_audio_temp_file_path = combined_audio_temp_file.name
                 combined_audio.export(combined_audio_temp_file_path, format="mp4")
 
-            final_song_path = f"{melody_id}_final_song.mp4"
+            final_song_name = f"{song_id}_final_song.mp4"
 
             # Store the generated file in MinIO
             self._store_file_in_minio(
                 local_file_path=combined_audio_temp_file_path, 
-                minio_object_name=final_song_path,
+                minio_object_name=final_song_name,
                 context=context, 
                 content_type="audio/mpeg")
 
-            self._log_to_mongodb(f"Combined audio stored in MinIO for melody_id: {melody_id}", context, "INFO")
-
-            # Update the BSON document with the MinIO object path
-            melody_info['final_song_path'] = final_song_path
+            self._log_to_mongodb(f"Combined audio stored in MinIO for song_id: {song_id}", context, "INFO")
 
             # Update the document in MongoDB
-            collection.update_one({"_id": melody_info['_id']}, {"$set": melody_info})
-
-            self._log_to_mongodb("CombineAudioOperator execution completed", context, "INFO")
+            collection.update_one({"_id": ObjectId(song_id)}, {
+                "$set": {
+                    "final_song_name": final_song_name,
+                    "song_status": "final_song_generated",
+                    "final_song_generated_at": datetime.now()
+                }
+            })
+            self._log_to_mongodb("GenerateSongOperator execution completed", context, "INFO")
 
         except Exception as e:
             self._log_to_mongodb(f"Error storing or retrieving audio from MinIO: {e}", context, "ERROR")
             raise
 
-        return {"melody_id": str(melody_id)}
+        return {"song_id": str(song_id)}
