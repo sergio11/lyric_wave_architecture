@@ -1,0 +1,77 @@
+{
+  "info": {
+    "name": "LyricWave Streaming API",
+    "description": "Collection for LyricWave Streaming API endpoints.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Stream Melody",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://localhost:8088/stream_melody/{song_id}",
+          "host": [
+            "localhost"
+          ],
+          "port": "8088",
+          "path": [
+            "stream_melody",
+            "{song_id}"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Stream Voice",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://localhost:8088/stream_voice/{song_id}",
+          "host": [
+            "localhost"
+          ],
+          "port": "8088",
+          "path": [
+            "stream_voice",
+            "{song_id}"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Stream Song",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://localhost:8088/stream_song/{song_id}",
+          "host": [
+            "localhost"
+          ],
+          "port": "8088",
+          "path": [
+            "stream_song",
+            "{song_id}"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Show Image",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://localhost:8088/show_image/{song_id}",
+          "host": [
+            "localhost"
+          ],
+          "port": "8088",
+          "path": [
+            "show_image",
+            "{song_id}"
+          ]
+        }
+      }
+    }
+  ]
+}
