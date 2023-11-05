@@ -61,7 +61,7 @@ namespace :lyricwave do
     desc "Build and push LyricWave Song Generation API Docker image"
     task :build_and_push_song_generation_api_image do
       api_image_name = "ssanchez11/lyric_wave_song_generation_api:0.0.1"
-      api_directory = "./api"
+      api_directory = "./api/song_generation"
       puts "Building LyricWave Song Generation API Docker image..."
       build_command = "docker build -t #{api_image_name} #{api_directory}"
       system(build_command)
@@ -69,6 +69,20 @@ namespace :lyricwave do
       push_command = "docker push #{api_image_name}"
       system(push_command)
       puts "LyricWave Song Generation API image built and pushed successfully."
+    end
+
+    # Build and push LyricWave Streaming API Docker image
+    desc "Build and push LyricWave Streaming API Docker image"
+    task :build_and_push_streaming_api_image do
+      api_image_name = "ssanchez11/lyric_wave_streaming_api:0.0.1"
+      api_directory = "./api/streaming"
+      puts "Building LyricWave streaming API Docker image..."
+      build_command = "docker build -t #{api_image_name} #{api_directory}"
+      system(build_command)
+      puts "Pushing LyricWave streaming API Docker image to DockerHub..."
+      push_command = "docker push #{api_image_name}"
+      system(push_command)
+      puts "LyricWave streaming API image built and pushed successfully."
     end
 
     # Import music styles from JSON file

@@ -16,12 +16,31 @@ volumes:
     driver: local
   minio-data-3:
     driver: local
+  elasticsearch-data:
+    driver: local
 
 # Define a custom network for services to communicate
 networks:
   lyric_wave_network:
 
 services:
+
+  # Elasticsearch is a powerful open source search and analytics engine that makes data easy to explore.
+  lyric_wave_elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.6.2
+    container_name: lyric-wave-elasticsearch
+    environment:
+      - ELASTIC_PASSWORD=ssanchez00
+      - "ES_JAVA_OPTS=-Xmx256m -Xms256m"
+      - discovery.type=single-node
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+    networks:
+      - lyric_wave_network
 
   lyric_wave_minio1:
     image: minio/minio
@@ -254,5 +273,46 @@ services:
     ports:
       - '8086:5000'
       - '1937:1936'
+    networks:
+      - lyric_wave_network
+
+  # Lyric Wave Streaming API Service
+  lyric_wave_streaming_api_service_1:
+    image: ssanchez11/lyric_wave_streaming_api:0.0.1
+    container_name: lyric-wave-streaming-api-service-1
+    restart: always
+    env_file:
+      - .env
+    networks:
+      - lyric_wave_network
+
+  # Lyric Wave Streaming API Service
+  lyric_wave_streaming_api_service_2:
+    image: ssanchez11/lyric_wave_streaming_api:0.0.1
+    container_name: lyric-wave-streaming-api-service-2
+    restart: always
+    env_file:
+      - .env
+    networks:
+      - lyric_wave_network
+
+  # Lyric Wave Streaming API Service
+  lyric_wave_streaming_api_service_3:
+    image: ssanchez11/lyric_wave_streaming_api:0.0.1
+    container_name: lyric-wave-streaming-api-service-3
+    restart: always
+    env_file:
+      - .env
+    networks:
+      - lyric_wave_network
+
+  lyric_wave_streaming_haproxy:
+    image: haproxytech/haproxy-alpine:2.7
+    container_name: lyric-wave-streaming-haproxy
+    volumes:
+      - ./haproxy/streaming/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+    ports:
+      - '8088:5000'
+      - '1938:1936'
     networks:
       - lyric_wave_network

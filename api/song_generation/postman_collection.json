@@ -72,23 +72,23 @@
           "raw": "http://localhost:8086/songs?page={page}&limit={limit}",
           "protocol": "http",
           "host": [
-            "localhost"
+             "localhost"
           ],
           "port": "8086",
           "path": [
-            "songs"
+              "songs"
           ],
           "query": [
-            {
-              "key": "page",
-              "value": "1"
-            },
-            {
-              "key": "limit",
-              "value": "10"
-            }
-          ]
-        }
+              {
+                "key": "page",
+                "value": "1"
+              },
+              {
+                "key": "limit",
+                "value": "10"
+              }
+            ]
+          }
       },
       "response": []
     },
@@ -164,6 +164,36 @@
           "port": "8086",
           "path": [
             "music_styles"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Search Songs",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:8086/search_songs?q={search_term}",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8086",
+          "path": [
+            "search_songs"
+          ],
+          "query": [
+            {
+              "key": "q",
+              "value": "your_search_term_here"
+            }
           ]
         }
       },
