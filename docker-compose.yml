@@ -200,6 +200,22 @@ services:
     networks:
       - lyric_wave_network
 
+  # Apache Airflow worker containers
+  lyric_wave_airflow_worker_2:
+    image: ssanchez11/lyric_wave_apache_airflow:0.0.1
+    container_name: lyric-wave-airflow-worker-2
+    restart: always
+    env_file:
+      - .env
+    depends_on:
+      - lyric_wave_airflow_scheduler
+    volumes:
+      - ./airflow/dags:/usr/local/airflow/dags
+      - ./airflow/packages:/usr/local/airflow/packages
+    command: worker
+    networks:
+      - lyric_wave_network
+
   # Lyric Wave API Song Generation API Service
   lyric_wave_song_generation_api_service_1:
     image: ssanchez11/lyric_wave_song_generation_api:0.0.1
