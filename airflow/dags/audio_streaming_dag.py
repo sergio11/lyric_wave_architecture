@@ -18,10 +18,12 @@ with DAG('music_generation_dag', default_args=default_args, default_view="graph"
     GenerateMelodyOperator = operators_module.GenerateMelodyOperator
     operators_module = importlib.import_module('operators.generate_voice_operator')
     GenerateVoiceOperator = operators_module.GenerateVoiceOperator
-    operators_module = importlib.import_module('operators.combine_audio_operator')
-    CombineAudioOperator = operators_module.CombineAudioOperator
-    operators_module = importlib.import_module('operators.generate_melody_cover_operator')
-    GenerateMelodyCoverOperator = operators_module.GenerateMelodyCoverOperator
+    operators_module = importlib.import_module('operators.generate_song_operator')
+    GenerateSongOperator = operators_module.GenerateSongOperator
+    operators_module = importlib.import_module('operators.generate_song_cover_operator')
+    GenerateSongCoverOperator = operators_module.GenerateSongCoverOperator
+    operators_module = importlib.import_module('operators.index_to_elasticsearch_operator')
+    IndexToElasticsearchOperator = operators_module.IndexToElasticsearchOperator
 
     # Define the tasks for each operator
     generate_melody_task = GenerateMelodyOperator(
@@ -46,8 +48,8 @@ with DAG('music_generation_dag', default_args=default_args, default_view="graph"
         minio_bucket_name=os.environ.get("MINIO_BUCKET_NAME")
     )
 
-    combine_audio_task = CombineAudioOperator(
-        task_id='combine_audio_task',
+    generate_song_task = GenerateSongOperator(
+        task_id='generate_song_task',
         mongo_uri=os.environ.get("MONGO_URI"),
         mongo_db=os.environ.get("MONGO_DB"),
         mongo_db_collection=os.environ.get("MONGO_DB_COLLECTION"),
@@ -57,8 +59,8 @@ with DAG('music_generation_dag', default_args=default_args, default_view="graph"
         minio_bucket_name=os.environ.get("MINIO_BUCKET_NAME")
     )
 
-    generate_melody_cover_task = GenerateMelodyCoverOperator(
-        task_id='generate_melody_cover_task',
+    generate_song_cover_operator = GenerateSongCoverOperator(
+        task_id='generate_song_cover_operator',
         mongo_uri=os.environ.get("MONGO_URI"),
         mongo_db=os.environ.get("MONGO_DB"),
         mongo_db_collection=os.environ.get("MONGO_DB_COLLECTION"),
@@ -66,7 +68,20 @@ with DAG('music_generation_dag', default_args=default_args, default_view="graph"
         minio_access_key=os.environ.get("MINIO_ACCESS_KEY"),
         minio_secret_key=os.environ.get("MINIO_SECRET_KEY"),
         minio_bucket_name=os.environ.get("MINIO_BUCKET_NAME")
+    )
+
+    index_to_elasticsearch_operator = IndexToElasticsearchOperator(
+        task_id='index_to_elasticsearch_operator',
+        mongo_uri=os.environ.get("MONGO_URI"),
+        mongo_db=os.environ.get("MONGO_DB"),
+        mongo_db_collection=os.environ.get("MONGO_DB_COLLECTION"),
+        minio_endpoint=os.environ.get("MINIO_ENDPOINT"),
+        minio_access_key=os.environ.get("MINIO_ACCESS_KEY"),
+        minio_secret_key=os.environ.get("MINIO_SECRET_KEY"),
+        minio_bucket_name=os.environ.get("MINIO_BUCKET_NAME"),
+        elasticsearch_host=os.environ.get("ELASTICSEARCH_HOST"),
+        elasticsearch_index=os.environ.get("ELASTICSEARCH_INDEX")
     )
 
     # Define task dependencies by chaining the tasks in sequence
-    generate_melody_task >> generate_voice_task >> combine_audio_task >> generate_melody_cover_task
+    generate_melody_task >> generate_voice_task >> generate_song_task >> generate_song_cover_operator >> index_to_elasticsearch_operator

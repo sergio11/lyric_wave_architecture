@@ -207,7 +207,7 @@ def generate_song():
                 logger.info("DAG execution triggered successfully")
                 song_data = _get_song_info_with_urls(song_info)
                 response_data = _create_response("success", 200, "Song generated and scheduled successfully.", {"song_info": song_data})
-                return response_data, 200
+                return response_data
             else:
                 # If DAG execution failed, remove the document from MongoDB
                 songs_collection.delete_one({"_id": song_info_id})
@@ -215,15 +215,15 @@ def generate_song():
                 logger.error(f"HTTP Request Headers: {headers}")  # Log the request headers
                 logger.error(f"HTTP Request Body: {dag_run_conf}")  # Log the request body
                 response_data = _create_response("error", response.status_code, "Error triggering DAG execution.")
-                return response_data, 500
+                return response_data
         else:
             logger.error("Missing title or text parameters")
             response_data = _create_response("error", 400, "Missing title or text parameters.")
-            return response_data, 400
+            return response_data
     except Exception as e:
         logger.error(f"An error occurred: {str(e)}")
         response_data = _create_response("error", 500, "An internal server error occurred.")
-        return response_data, 500
+        return response_data
 
 
 # API endpoint for listing all songs paginated, descending by date
@@ -258,10 +258,10 @@ def delete_song_by_id(song_id):
             songs_collection.delete_one({"_id": ObjectId(song_id)})
             song_data = _get_song_info_with_urls(song_info)
             response_data = _create_response("success", 200, "Song deleted successfully", {"song_info": song_data})
-            return response_data, 200
+            return response_data
         else:
             response_data = _create_response("error", 404, "Song not found", {"song_info": None})
-            return response_data, 404
+            return response_data
     except Exception as e:
         logger.error(f"An error occurred: {str(e)}")
         response_data = _create_response("error", 500, "An internal server error occurred")
@@ -302,9 +302,7 @@ def search_songs():
                 matching_songs.append(song_data)
 
         response_data = _create_response("success", 200, "Songs retrieved successfully", {"matching_songs": matching_songs})
-
-        return response_data, 200
-
+        return response_data
     except Exception as e:
         logger.error(f"An error occurred: {str(e)}")
         response_data = _create_response("error", 500, "An internal server error occurred")
@@ -339,7 +337,8 @@ def _get_song_info_with_urls(song_info):
         "music_style": music_style_name,
         "melody_url": melody_url,
         "voice_url": voice_url,
-        "image_url": image_url
+        "image_url": image_url,
+        "song_url": song_url
     }
     
     return song_data

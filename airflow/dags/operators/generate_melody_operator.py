@@ -3,6 +3,8 @@ from operators.base_custom_operator import BaseCustomOperator
 from bson import ObjectId
 import importlib
 import scipy
+import tempfile
+from datetime import datetime
 
 
 class GenerateMelodyOperator(BaseCustomOperator):
@@ -32,15 +34,14 @@ class GenerateMelodyOperator(BaseCustomOperator):
         super().__init__(*args, **kwargs)
 
 
-    def _generate_melody(self, song_info_id, song_text):
+    def _generate_melody(self, song_text):
         """
         Generates a musical melody from the given song text using the AudioCraft by Facebook model.
 
         This function use the AudioCraft model to encode the provided song text into a musical melody.
-        The generated melody is saved as a WAV audio file with a unique filename based on the song_info_id.
+        The generated melody is saved as a WAV audio file with a unique filename based on the song_id.
 
         Args:
-            song_info_id (str): The unique identifier for the song information.
             song_text (str): The text input used for generating the musical melody.
 
         Returns:
@@ -54,11 +55,13 @@ class GenerateMelodyOperator(BaseCustomOperator):
             padding=True,
             return_tensors="pt",
         )
-        audio_values = model.generate(**inputs, max_new_tokens=150)
-        wav_file_path = f"{song_info_id}_melody.wav"
-        sampling_rate = model.config.audio_encoder.sampling_rate
-        scipy.io.wavfile.write(wav_file_path, rate=sampling_rate, data=audio_values[0, 0].numpy())
+        audio_values = model.generate(**inputs, max_new_tokens=500)
+        with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as temp_file:
+            wav_file_path = temp_file.name
+            sampling_rate = model.config.audio_encoder.sampling_rate
+            scipy.io.wavfile.write(wav_file_path, rate=sampling_rate, data=audio_values[0, 0].numpy())
         return wav_file_path
+        
 
     def execute(self, context):
         """
@@ -79,22 +82,23 @@ class GenerateMelodyOperator(BaseCustomOperator):
         Returns:
             dict: A dictionary containing information about the generated melody, specifically the melody's ID.
         """
-        self._log_to_mongodb("Starting execution of GenerateMelodyOperator", context, "INFO")
+
+        self._log_to_mongodb(f"Starting execution of GenerateMelodyOperator", context, "INFO")
 
         # Get the configuration passed to the DAG from the execution context
         dag_run_conf = context['dag_run'].conf
 
         # Get the song_info_id from the configuration
-        song_info_id = dag_run_conf['song_info_id']
-        self._log_to_mongodb(f"Received song_info_id: {song_info_id}", context, "INFO")
+        song_id = dag_run_conf['song_id']
+        self._log_to_mongodb(f"Received song_id: {song_id}", context, "INFO")
 
         # Get a reference to the MongoDB collection
         collection = self._get_mongodb_collection()
         self._log_to_mongodb("Connected to MongoDB", context, "INFO")
 
-        song_info = collection.find_one({"_id": ObjectId(song_info_id)})
+        song_info = collection.find_one({"_id": ObjectId(song_id)})
         if song_info is None:
-            error_message = f"Song info with ID {song_info_id} not found in MongoDB"
+            error_message = f"Song info with ID {song_id} not found in MongoDB"
             self._log_to_mongodb(error_message, context, "ERROR")
             raise Exception(error_message)
 
@@ -105,7 +109,7 @@ class GenerateMelodyOperator(BaseCustomOperator):
 
         try:
             self._log_to_mongodb("Generating melody...", context, "INFO")
-            melody_file_path = self._generate_melody(song_info_id, song_text)
+            melody_file_path = self._generate_melody(song_text)
             self._log_to_mongodb("Melody generated successfully", context, "INFO")
         except Exception as e:
             error_message = f"An error occurred while generating the melody: {e}"
@@ -114,20 +118,24 @@ class GenerateMelodyOperator(BaseCustomOperator):
 
         self._log_to_mongodb(f"Storing melody in MinIO for '{song_title}'", context, "INFO")
 
+        melody_object_name = f"{song_id}_melody.wav"
+
         # Store the generated .wav file in MinIO
         self._store_file_in_minio(
             local_file_path=melody_file_path, 
-            minio_object_name=melody_file_path,
+            minio_object_name=melody_object_name,
             context=context, 
             content_type="audio/wav")
 
-        # Update the existing BSON document with the path to the WAV file in MinIO
-        song_info['melody_file_path'] = melody_file_path
-
-        # Update the document in MongoDB
-        collection.update_one({"_id": song_info_id}, {"$set": song_info})
-
-        self._log_to_mongodb(f"Generated melody saved in MongoDB with ID: {song_info_id}", context, "INFO")
+        # Update the existing BSON document
+        collection.update_one({"_id": ObjectId(song_id)}, {
+            "$set": {
+                "melody_file_name": melody_object_name,
+                "song_status": "melody_generated",
+                "melody_generated_at": datetime.now()
+            }
+        })
+        self._log_to_mongodb(f"Generated melody saved in MongoDB with ID: {song_id}", context, "INFO")
         self._log_to_mongodb("GenerateMelodyOperator execution completed", context, "INFO")
 
-        return {"melody_id": str(song_info_id)}
+        return {"song_id": str(song_id)}
