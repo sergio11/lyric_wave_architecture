@@ -44,6 +44,26 @@ namespace :lyricwave do
         puts `docker-compose ps 2>&1`
     end
 
+    desc "Create Apache Airflow Users"
+    task :create_apache_airflow_users do
+        # Container name
+        container_name = "lyric-wave-airflow-webserver"
+        
+        # Commands to create users
+        create_admin_user_cmd = "docker exec #{container_name} airflow users create -r Admin -u dreamsoftware -e dreamsoftware@lyrywave.com -f Sergio -l Sánchez -p dreamsoftware00"
+        create_executor_user_cmd = "docker exec #{container_name} airflow users create -r User -u api_executor -e api_executor@lyrywave.com -f API -l Executor -p dreamsoftware00"
+        
+        # Create Admin user
+        puts "Creating Admin user..."
+        `#{create_admin_user_cmd}`
+        puts "Admin user created successfully."
+        
+        # Create API Executor user
+        puts "Creating API Executor user..."
+        `#{create_executor_user_cmd}`
+        puts "API Executor user created successfully."
+    end
+
     # Build and push Apache Airflow Docker image
     desc "Build and push Apache Airflow Docker image"
     task :build_and_push_airflow_image do
