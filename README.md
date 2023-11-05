@@ -171,6 +171,29 @@ https://github.com/sergio11/lyric_wave_architecture/assets/6996211/d87e5c46-1337
 ![platform picture](screenshots/screenshot_5.PNG)
 ![platform picture](screenshots/screenshot_6.PNG)
 
+
+## Task Descriptions
+
+The following table provides descriptions and examples of tasks available in the Rakefile for deploying and managing your environment.
+
+| Task                                       | Description                                                                                                                 | Example Usage                                |
+|--------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------|----------------------------------------------|
+| `rake lyricwave:deploy`                    | Deploys the architecture and launches all services and daemons needed to work properly.                                | `rake lyricwave:deploy`                      |
+| `rake lyricwave:undeploy`                  | Undeploys the architecture.                                                                                                 | `rake lyricwave:undeploy`                    |
+| `rake lyricwave:start`                     | Start containers.                                                                                                           | `rake lyricwave:start`                       |
+| `rake lyricwave:stop`                      | Stop containers.                                                                                                            | `rake lyricwave:stop`                        |
+| `rake lyricwave:status`                    | Show container status.                                                                                                      | `rake lyricwave:status`                      |
+| `rake lyricwave:create_apache_airflow_users` | Create Apache Airflow users.                                                                                                | `rake lyricwave:create_apache_airflow_users` |
+| `rake lyricwave:build_and_push_airflow_image` | Build and push Apache Airflow Docker image.                                                                                  | `rake lyricwave:build_and_push_airflow_image` |
+| `rake lyricwave:build_and_push_song_generation_api_image` | Build and push LyricWave Song Generation API Docker image. | `rake lyricwave:build_and_push_song_generation_api_image` |
+| `rake lyricwave:build_and_push_streaming_api_image` | Build and push LyricWave Streaming API Docker image.        | `rake lyricwave:build_and_push_streaming_api_image` |
+| `rake lyricwave:import_music_styles`       | Import music styles from a JSON file into MongoDB.                                                                        | `rake lyricwave:import_music_styles`          |
+| `rake lyricwave:clean_environment`         | Clean the environment by removing unused Docker images and volumes.                                                       | `rake lyricwave:clean_environment`            |
+| `rake lyricwave:check_docker`              | Check if Docker and Docker Compose are available in the PATH.                                                               | `rake lyricwave:check_docker`                 |
+| `rake lyricwave:login`                     | Authenticate with existing Docker credentials.                                                                              | `rake lyricwave:login`                        |
+| `rake lyricwave:check_deployment_file`     | Check the availability of the deployment file (docker-compose.yml).                                                        | `rake lyricwave:check_deployment_file`        |
+
+
 ## Getting Started
 1. Clone this repository to your local machine.
 2. Configure environment variables in `.env` to tailor the project settings to your requirements.
