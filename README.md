@@ -197,6 +197,17 @@ The entire deployment of the project architecture has been unified in a single D
 
 ![platform picture](screenshots/screenshot_12.PNG)
 
+
+Two Postman collections have been configured, to show how it is possible to easily interact with the platform, there is an API that manages the creation, deletion and query operations of songs and the other API is intended for streaming melodies, voices and songs.
+
+![platform picture](screenshots/screenshot_7.PNG)
+![platform picture](screenshots/screenshot_8.PNG)
+![platform picture](screenshots/screenshot_20.PNG)
+![platform picture](screenshots/screenshot_21.PNG)
+![platform picture](screenshots/screenshot_22.PNG)
+![platform picture](screenshots/screenshot_23.PNG)
+
+
 ## Task Descriptions
 
 The following table provides descriptions and examples of tasks available in the Rakefile for deploying and managing your environment.
