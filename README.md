@@ -1,7 +1,7 @@
 # 🎵 LyricWave: The AI-Powered Music Generation Platform 🎶
 
 <p>
-  <img src="https://img.shields.io/github/last-commit/sergio11/passwordless_authentication_architecture.svg" />
+  <img src="https://img.shields.io/github/last-commit/sergio11/lyric_wave_architecture.svg" />
 </p>
 
 <img width="300px" align="left" src="./doc/logo.PNG" />
