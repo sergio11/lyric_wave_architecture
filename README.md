@@ -55,6 +55,10 @@ Whether you're an artist, songwriter, or just someone looking for a unique music
 
 With this technology stack, LyricWave offers a unique and powerful music generation experience. Experience the magic of AI-generated music today! 🎶🚀
 
+## Architecture Overview
+
+<img width="auto" src="./doc/architecture_diagram.drawio.svg" />
+
 ## Song Examples
 
 In this section, you'll find a collection of AI-generated songs, each with its unique cover art and lyrics. Dive into the world of music created by LyricWave and discover the diversity of melodies and emotions that AI can craft. Explore these musical pieces, listen to their harmonious tunes, and appreciate the artistry of AI-driven music generation.
