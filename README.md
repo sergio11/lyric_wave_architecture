@@ -169,34 +169,51 @@ https://github.com/sergio11/lyric_wave_architecture/assets/6996211/d87e5c46-1337
 
 * **Meaning**: The song "Wounds of Time" delves into the weight of emotional scars and the secrets kept deep within the narrator's heart.
 
+## Tools screenshots
+
+In this section some details of the components that make the project possible will be shown and explained.
+
+### Apache Ariflow
+
 You can access the web tool provided by Apache Airflow to check the execution status of the DAG and perform some administrative tasks.
 
 ![platform picture](screenshots/screenshot_15.PNG)
 ![platform picture](screenshots/screenshot_16.PNG)
 ![platform picture](screenshots/screenshot_17.PNG)
 
+### PostgreSQL PGAdmin
+
 To access at a low level and review the database and carry out backups and more advanced modifications, a PGAdmin has been enabled that allows managing the PostgreSQL server on which Apache Airflow is based to centralize and persist DAG information and their executions.
 
 ![platform picture](screenshots/screenshot_19.PNG)
+
+### Celery Flower
 
 Celery Flower is a web-based tool designed for monitoring and managing tasks in a Celery task queue. Its purpose is to provide a user-friendly, visual interface to keep track of task statuses, worker activity, and real-time statistics. Flower enables you to efficiently oversee and control Celery tasks, ensuring smooth operation in your Python applications.
 
 ![platform picture](screenshots/screenshot_13.PNG)
 ![platform picture](screenshots/screenshot_14.PNG)
 
+### MongDB
+
 A collection has been configured to record in detail all the logs generated during the execution of the DAG, in this way it is possible to identify errors or bad behavior later, given that the logs in Apache Airflow are difficult to check.
 
 ![platform picture](screenshots/screenshot_3.PNG)
+
+### HAProxy
 
 It is possible to monitor the status of the replicas of the different services, each HAproxy in charge of managing each group of replicas provides a web interface to consult their status, as can be seen in the following screenshots.
 
 ![platform picture](screenshots/screenshot_10.PNG)
 ![platform picture](screenshots/screenshot_11.PNG)
 
+### Docker Compose
+
 The entire deployment of the project architecture has been unified in a single Docker Compose configuration
 
 ![platform picture](screenshots/screenshot_12.PNG)
 
+## Postman Collections
 
 Two Postman collections have been configured, to show how it is possible to easily interact with the platform, there is an API that manages the creation, deletion and query operations of songs and the other API is intended for streaming melodies, voices and songs.
 
