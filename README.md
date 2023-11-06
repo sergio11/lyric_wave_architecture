@@ -15,6 +15,9 @@ LyricWave isn't just a platform; it's a gateway to a new dimension of musical ex
   <img src="https://img.shields.io/badge/postgres-%23316192.svg?style=for-the-badge&logo=postgresql&logoColor=white" />
   <img src="https://img.shields.io/badge/MongoDB-%234ea94b.svg?style=for-the-badge&logo=mongodb&logoColor=white" />
   <img src="https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white" />
+  <img src="https://img.shields.io/badge/Elastic_Search-005571?style=for-the-badge&logo=elasticsearch&logoColor=white" />
+  <img src="https://img.shields.io/badge/PyTorch-EE4C2C?style=for-the-badge&logo=pytorch&logoColor=white" />
+  <img src="https://tinyurl.com/2p9ft7xf" />
 </p>
 
 ## Key Features
@@ -31,6 +34,8 @@ LyricWave isn't just a platform; it's a gateway to a new dimension of musical ex
 - 🐳 **Docker-Powered Workflow:** Our Docker Compose environment simplifies the deployment and orchestration of the entire music generation pipeline, ensuring a smooth workflow.
 
 - 🚀 **Apache Airflow DAG:** We have modeled this entire music generation process as a DAG in Apache Airflow, making it easy to schedule, monitor, and manage your music creation tasks.
+  
+- 📑 **Advanced Text Search:** LyricWave harnesses Elasticsearch to index the text of songs, enabling advanced and efficient text-based searches for simple terms. This feature allows users to find songs, even if they only remember a few words from the lyrics.
 
 Whether you're an artist, songwriter, or just someone looking for a unique musical experience, LyricWave has you covered. 📝🎼 Unleash your inner composer and let LyricWave transform your words into beautiful melodies. Get ready to embark on a musical journey like never before! 🚀🎶
 
@@ -39,6 +44,7 @@ Whether you're an artist, songwriter, or just someone looking for a unique music
 - **Suno-AI Bark 🐶:** [Suno-AI Bark](https://github.com/suno-ai/bark) is a transformer-based text-to-audio model created by Suno. Bark can generate highly realistic, multilingual speech as well as other audio, including music, background noise, and simple sound effects. The model can also produce nonverbal communications like laughing, sighing, and crying. These pretrained model checkpoints are available for commercial use.
 - **MusicGen from AudioCraft 🎵:** [MusicGen](https://github.com/facebookresearch/audiocraft) is a simple and controllable model for music generation provided by AudioCraft. It is a single-stage auto-regressive Transformer model trained over a 32 kHz EnCodec tokenizer with 4 codebooks sampled at 50 Hz. Unlike existing methods, MusicGen doesn't require self-supervised semantic representation, and it generates all 4 codebooks in one pass. It uses 20,000 hours of licensed music for training, including an internal dataset of 10,000 high-quality music tracks as well as ShutterStock and Pond5 music data.
 - **Stable Diffusion Model 🖼️:** [The Stable Diffusion Model](https://huggingface.co/runwayml/stable-diffusion-v1-5) is a latent text-to-image diffusion model capable of generating photorealistic images from any text input. It's based on diffusion technology and is capable of producing stunning visual representations based on text.
+- **Elasticsearch 🔍:** [Elasticsearch](https://www.elastic.co/es/elasticsearch) is a powerful search and analytics engine. LyricWave uses Elasticsearch to index and search the text of songs efficiently, offering advanced search capabilities, even for simple search terms.
 - **Apache Airflow 🛠️:** [Apache Airflow](https://airflow.apache.org/) is an extensible platform for orchestrating complex workflows. In the context of LyricWave, it's used to schedule and manage the music generation process.
 - **Flask 📡:** [Flask](https://flask.palletsprojects.com/en/3.0.x/) is a lightweight web framework used to build the API that allows users to initiate and manage music generation tasks in LyricWave.
 - **MongoDB 📊:** [MongoDB](https://www.mongodb.com/es) is a versatile NoSQL database used to store and retrieve information about generated songs, including melodies, synthetic voices, abstract images, and metadata.
@@ -163,13 +169,60 @@ https://github.com/sergio11/lyric_wave_architecture/assets/6996211/d87e5c46-1337
 
 * **Meaning**: The song "Wounds of Time" delves into the weight of emotional scars and the secrets kept deep within the narrator's heart.
 
+## Tools screenshots
 
-![platform picture](screenshots/screenshot_1.PNG)
-![platform picture](screenshots/screenshot_2.PNG)
+In this section some details of the components that make the project possible will be shown and explained.
+
+### Apache Ariflow
+
+You can access the web tool provided by Apache Airflow to check the execution status of the DAG and perform some administrative tasks.
+
+![platform picture](screenshots/screenshot_15.PNG)
+![platform picture](screenshots/screenshot_16.PNG)
+![platform picture](screenshots/screenshot_17.PNG)
+
+### PostgreSQL PGAdmin
+
+To access at a low level and review the database and carry out backups and more advanced modifications, a PGAdmin has been enabled that allows managing the PostgreSQL server on which Apache Airflow is based to centralize and persist DAG information and their executions.
+
+![platform picture](screenshots/screenshot_19.PNG)
+
+### Celery Flower
+
+Celery Flower is a web-based tool designed for monitoring and managing tasks in a Celery task queue. Its purpose is to provide a user-friendly, visual interface to keep track of task statuses, worker activity, and real-time statistics. Flower enables you to efficiently oversee and control Celery tasks, ensuring smooth operation in your Python applications.
+
+![platform picture](screenshots/screenshot_13.PNG)
+![platform picture](screenshots/screenshot_14.PNG)
+
+### MongDB
+
+A collection has been configured to record in detail all the logs generated during the execution of the DAG, in this way it is possible to identify errors or bad behavior later, given that the logs in Apache Airflow are difficult to check.
+
 ![platform picture](screenshots/screenshot_3.PNG)
-![platform picture](screenshots/screenshot_4.PNG)
-![platform picture](screenshots/screenshot_5.PNG)
-![platform picture](screenshots/screenshot_6.PNG)
+
+### HAProxy
+
+It is possible to monitor the status of the replicas of the different services, each HAproxy in charge of managing each group of replicas provides a web interface to consult their status, as can be seen in the following screenshots.
+
+![platform picture](screenshots/screenshot_10.PNG)
+![platform picture](screenshots/screenshot_11.PNG)
+
+### Docker Compose
+
+The entire deployment of the project architecture has been unified in a single Docker Compose configuration
+
+![platform picture](screenshots/screenshot_12.PNG)
+
+## Postman Collections
+
+Two Postman collections have been configured, to show how it is possible to easily interact with the platform, there is an API that manages the creation, deletion and query operations of songs and the other API is intended for streaming melodies, voices and songs.
+
+![platform picture](screenshots/screenshot_7.PNG)
+![platform picture](screenshots/screenshot_8.PNG)
+![platform picture](screenshots/screenshot_20.PNG)
+![platform picture](screenshots/screenshot_21.PNG)
+![platform picture](screenshots/screenshot_22.PNG)
+![platform picture](screenshots/screenshot_23.PNG)
 
 
 ## Task Descriptions
