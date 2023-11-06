@@ -69,7 +69,7 @@ In the LyricWave music generation platform, various architectural components wor
 
 - **Apache Airflow:** Apache Airflow serves as the orchestrator of the entire music generation process. It schedules, monitors, and manages the execution of complex workflows represented as Directed Acyclic Graphs (DAGs). Airflow ensures that all the tasks, from generating melodies to creating final songs, are executed efficiently and in the desired sequence.
 - **MongoDB:** MongoDB is used as the primary database for storing comprehensive song details, including metadata, lyrics, generated melodies, and more. It plays a central role in data management, enabling seamless storage, retrieval, and updates throughout the music creation process.
-- **HaProxy:** HaProxy serves as a load balancer, distributing incoming requests to the Celery worker nodes. This ensures optimal resource utilization and load distribution for the various tasks involved in music generation.
+- **HaProxy:** HaProxy serves as a load balancer, distributing incoming requests to the nodes of the Song Generation API and the Streaming API. This ensures optimal resource utilization and load distribution for the various tasks involved in music generation.
 - **Celery:** Celery is the distributed task queue system responsible for executing the computationally intensive tasks involved in generating music. It efficiently parallelizes the workload and utilizes multiple worker nodes to enhance processing speed and scalability.
 - **Elasticsearch:** Elasticsearch is used to enhance the search capabilities within the platform. It indexes the content of songs, allowing users to perform advanced searches based on specific terms. This improves the discoverability of songs and enhances the overall user experience.
 - **Song Generation API in Flask (Multiplexed):** The Song Generation API, powered by Flask, offers a convenient way to manage songs. Users can create new songs, initiate the execution of Airflow DAGs, delete songs, list existing songs, and perform searches using the Elasticsearch index. It serves as the gateway for users to interact with the LyricWave platform.
@@ -298,14 +298,6 @@ Below is a list of services available locally, each with its associated port num
 | Streaming API Service 2                | -       | API service for streaming data.                                  |
 | Streaming API Service 3                | -       | API service for streaming data.                                  |
 | Streaming HAProxy                      | 8088    | Load balancer for streaming services.                            |
-
-
-## Getting Started
-1. Clone this repository to your local machine.
-2. Configure environment variables in `.env` to tailor the project settings to your requirements.
-3. Execute `docker-compose up` to initiate the project within the Docker Compose environment.
-4. Access the Airflow UI at `http://localhost:8080` to trigger and monitor music generation tasks.
-5. Utilize the Flask API at `http://localhost:5000` for requesting music streaming and initiating the composition process.
 
 ## Contribution
 Contributions to LyricWave are highly encouraged! If you're interested in adding new features, resolving bugs, or enhancing the project's functionality, please feel free to submit pull requests.
