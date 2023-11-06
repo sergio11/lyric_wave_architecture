@@ -312,11 +312,11 @@ If you have any questions, feedback, or suggestions, feel free to reach out at d
 
 ## Visitors Count
 
-<img width="auto" src="https://profile-counter.glitch.me/document_search_engine_architecture/count.svg" />
+<img width="auto" src="https://profile-counter.glitch.me/lyric_wave_architecture/count.svg" />
 
 ## Please Share & Star the repository to keep me motivated.
-  <a href = "https://github.com/sergio11/document_search_engine_architecture/stargazers">
-     <img src = "https://img.shields.io/github/stars/sergio11/document_search_engine_architecture" />
+  <a href = "https://github.com/sergio11/lyric_wave_architecture/stargazers">
+     <img src = "https://img.shields.io/github/stars/sergio11/lyric_wave_architecture" />
   </a>
 
 
