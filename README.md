@@ -55,6 +55,23 @@ Whether you're an artist, songwriter, or just someone looking for a unique music
 
 With this technology stack, LyricWave offers a unique and powerful music generation experience. Experience the magic of AI-generated music today! 🎶🚀
 
+## Architecture Overview
+
+In the LyricWave music generation platform, various architectural components work in harmony to deliver a seamless and powerful experience for both creators and music enthusiasts. Let's explore the purpose and role of each element:
+
+<img width="auto" src="./doc/architecture_diagram.drawio.svg" />
+
+- **Apache Airflow:** Apache Airflow serves as the orchestrator of the entire music generation process. It schedules, monitors, and manages the execution of complex workflows represented as Directed Acyclic Graphs (DAGs). Airflow ensures that all the tasks, from generating melodies to creating final songs, are executed efficiently and in the desired sequence.
+- **MongoDB:** MongoDB is used as the primary database for storing comprehensive song details, including metadata, lyrics, generated melodies, and more. It plays a central role in data management, enabling seamless storage, retrieval, and updates throughout the music creation process.
+- **HaProxy:** HaProxy serves as a load balancer, distributing incoming requests to the Celery worker nodes. This ensures optimal resource utilization and load distribution for the various tasks involved in music generation.
+- **Celery:** Celery is the distributed task queue system responsible for executing the computationally intensive tasks involved in generating music. It efficiently parallelizes the workload and utilizes multiple worker nodes to enhance processing speed and scalability.
+- **Elasticsearch:** Elasticsearch is used to enhance the search capabilities within the platform. It indexes the content of songs, allowing users to perform advanced searches based on specific terms. This improves the discoverability of songs and enhances the overall user experience.
+- **Song Generation API in Flask (Multiplexed):** The Song Generation API, powered by Flask, offers a convenient way to manage songs. Users can create new songs, initiate the execution of Airflow DAGs, delete songs, list existing songs, and perform searches using the Elasticsearch index. It serves as the gateway for users to interact with the LyricWave platform.
+- **Streaming API in Flask:** The Streaming API in Flask enables users to stream and play the generated melodies, voice files, and final songs. This real-time audio streaming feature allows listeners to experience the music as it is being generated, enhancing engagement and entertainment.
+- **MinIO:** MinIO is utilized as a high-performance object storage system for the platform. It is responsible for storing various files, including generated audio and images, and provides secure and efficient access to these resources.
+
+Together, these architectural components create a dynamic and integrated ecosystem that powers LyricWave, transforming words into beautiful melodies and immersive music experiences. Whether you're a creator or a listener, this architecture ensures that the magic of AI-powered music generation is at your fingertips.
+
 ## Song Examples
 
 In this section, you'll find a collection of AI-generated songs, each with its unique cover art and lyrics. Dive into the world of music created by LyricWave and discover the diversity of melodies and emotions that AI can craft. Explore these musical pieces, listen to their harmonious tunes, and appreciate the artistry of AI-driven music generation.
