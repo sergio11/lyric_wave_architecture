@@ -97,7 +97,10 @@ In this section, you'll find a collection of AI-generated songs, each with its u
     In the darkest hours, I'll find my glow. ♪
 ```
 
-https://github.com/sergio11/lyric_wave_architecture/assets/6996211/ce870367-051e-4915-b7c4-c5edd4a615c3
+https://github.com/sergio11/lyric_wave_architecture/assets/6996211/b109b183-10a9-4a12-ac34-d3cb83b8cd6d
+ 
+[![SoundCloud](https://img.shields.io/badge/SoundCloud-FF3300?style=for-the-badge&logo=soundcloud&logoColor=white)](https://soundcloud.com/sergio-sanchez-sanchez-569517885/find-my-glow-final-song)
+
 
 * **Meaning**: The song "Find My Glow" is a message of resilience and determination in the face of adversity. Despite the continuous rain and the feeling of an everlasting night, the narrator refuses to give up. The lyrics reflect a sense of heaviness and emotional burden, which could represent life's challenges and struggles.
 
@@ -115,7 +118,9 @@ https://github.com/sergio11/lyric_wave_architecture/assets/6996211/ce870367-051e
    Embrace the day, and set your spirit free. ♪
 ```
 
-https://github.com/sergio11/lyric_wave_architecture/assets/6996211/3c20e936-4bc3-4c78-8ffe-c44ba9d03f43
+https://github.com/sergio11/lyric_wave_architecture/assets/6996211/3312810a-7919-496e-b185-5a38ab554114
+
+[![SoundCloud](https://img.shields.io/badge/SoundCloud-FF3300?style=for-the-badge&logo=soundcloud&logoColor=white)](https://soundcloud.com/sergio-sanchez-sanchez-569517885/rise-and-shine-final-song)
 
 * **Meaning**: The song "Rise and Shine" is an uplifting message of hope and empowerment. It encourages the listener to embrace their inner strength and face the world with a positive attitude."
 
@@ -133,7 +138,9 @@ https://github.com/sergio11/lyric_wave_architecture/assets/6996211/3c20e936-4bc3
     In this quiet solitude, I'm forever unseen. ♪
 ```
 
-https://github.com/sergio11/lyric_wave_architecture/assets/6996211/50a608b8-a7b2-4a44-966d-e1b2262ae336
+https://github.com/sergio11/lyric_wave_architecture/assets/6996211/a65b9adf-a5a4-4209-b496-9fe10c2a0885
+
+[![SoundCloud](https://img.shields.io/badge/SoundCloud-FF3300?style=for-the-badge&logo=soundcloud&logoColor=white)](https://soundcloud.com/sergio-sanchez-sanchez-569517885/fading-echoes-final-song)
 
 * **Meaning**: This song is about loss and the passage of time. It captures the feeling that memories of a loved one fade over time, leaving behind a sense of melancholy.
 
@@ -143,8 +150,6 @@ https://github.com/sergio11/lyric_wave_architecture/assets/6996211/50a608b8-a7b2
 
 ![Fading memories song image cover](songs/fading_memories/fading_memories_song_cover.jpg)
 
-https://github.com/sergio11/lyric_wave_architecture/assets/6996211/7ec6485f-78f2-4a90-8bbd-09f82fb771be
-
 #### Song lyrics
 
 ```
@@ -152,6 +157,11 @@ https://github.com/sergio11/lyric_wave_architecture/assets/6996211/7ec6485f-78f2
     lost at sea. Your ghost still haunts my heart, it seems,
     In this endless night, I'm lost in dreams. ♪
 ```
+
+https://github.com/sergio11/lyric_wave_architecture/assets/6996211/9a300d96-9c48-4c0b-a345-795519e8c20c
+
+[![SoundCloud](https://img.shields.io/badge/SoundCloud-FF3300?style=for-the-badge&logo=soundcloud&logoColor=white)](https://soundcloud.com/sergio-sanchez-sanchez-569517885/fading-memories-final-song)
+
 
 * **Meaning**: The song "Fading Memories" is a melancholic reflection on the experience of loss and nostalgia. The lyrics paint a picture of someone who is deeply affected by fading memories of a past love.
 
@@ -169,7 +179,9 @@ https://github.com/sergio11/lyric_wave_architecture/assets/6996211/7ec6485f-78f2
     In the ruins of our world, I search for a fresh start.  ♪
 ```
 
-https://github.com/sergio11/lyric_wave_architecture/assets/6996211/f93707d1-45fd-473c-8395-d346079bb4d1
+https://github.com/sergio11/lyric_wave_architecture/assets/6996211/a24ba7a1-fa4b-4beb-a80a-efbe7c226a84
+
+[![SoundCloud](https://img.shields.io/badge/SoundCloud-FF3300?style=for-the-badge&logo=soundcloud&logoColor=white)](https://soundcloud.com/sergio-sanchez-sanchez-569517885/broken-promises-final-song)
 
 * **Meaning**: The song "Broken Promises" is a reflection on the pain and disappointment that can come from unfulfilled commitments and shattered dreams in a relationship.
 
@@ -188,7 +200,9 @@ https://github.com/sergio11/lyric_wave_architecture/assets/6996211/f93707d1-45fd
     In the shadows of my heart, I silently hide.  ♪
 ```
 
-https://github.com/sergio11/lyric_wave_architecture/assets/6996211/d87e5c46-1337-4a5c-a9a1-0a25b117222c
+https://github.com/sergio11/lyric_wave_architecture/assets/6996211/e2bcbded-6015-449d-ad85-d2654cdda764
+
+[![SoundCloud](https://img.shields.io/badge/SoundCloud-FF3300?style=for-the-badge&logo=soundcloud&logoColor=white)](https://soundcloud.com/sergio-sanchez-sanchez-569517885/wounds-of-time-final-song)
 
 * **Meaning**: The song "Wounds of Time" delves into the weight of emotional scars and the secrets kept deep within the narrator's heart.
 
