@@ -28,7 +28,7 @@ LyricWave isn't just a platform; it's a gateway to a new dimension of musical ex
 
 ## More Details 📝
 
-For comprehensive information about this project, check out this [Medium article](https://sanchezsanchezsergio418.medium.com/a-glimpse-into-ai-powered-song-generation-with-lyricwave-fb071b9a0fe0).
+For comprehensive information about this project, check out this [Medium article](https://medium.com/@sanchezsanchezsergio418/revolutionizing-workplace-productivity-with-ai-driven-meeting-insights-d3b2a4cf27a4).
 
 ## Key Features
 - 🎵 **Melody Magic:** The integration with AudioCraft from Meta crafts melodies that perfectly match the lyrical sentiment, resulting in captivating musical compositions.
