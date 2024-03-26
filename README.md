@@ -1,9 +1,5 @@
 # 🎵 LyricWave: The AI-Powered Music Generation Platform 🎶
 
-<p>
-  <img src="https://img.shields.io/github/last-commit/sergio11/lyric_wave_architecture.svg" />
-</p>
-
 <img width="300px" align="left" src="./doc/logo.PNG" />
 
 Step into the world of music with LyricWave, a cutting-edge AI-driven platform that brings together the art of music creation and technology. 🎶🤖
