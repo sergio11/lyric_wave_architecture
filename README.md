@@ -22,6 +22,12 @@ LyricWave isn't just a platform; it's a gateway to a new dimension of musical ex
   <img src="https://tinyurl.com/2p9ft7xf" />
 </p>
 
+## ⚠️ Disclaimer
+
+**LyricWave** is an **experimental AI-driven music generation platform** designed for **creative exploration** and **educational purposes**. While LyricWave integrates advanced technologies such as **AudioCraft** for melody generation, **Suno-AI Bark** for voice cloning, and **Stable Diffusion** for cover image creation, it is **not intended for commercial production use**.
+
+This platform combines the capabilities of various AI models to create music and accompanying artwork, but the generated content may **not always meet professional standards**. The voice cloning and music synthesis processes are **experimental**, and the quality of output may vary.
+
 ## More Details 📝
 
 For comprehensive information about this project, check out this [Medium article](https://sanchezsanchezsergio418.medium.com/a-glimpse-into-ai-powered-song-generation-with-lyricwave-fb071b9a0fe0).
@@ -312,6 +318,12 @@ Below is a list of services available locally, each with its associated port num
 | Streaming API Service 2                | -       | API service for streaming data.                                  |
 | Streaming API Service 3                | -       | API service for streaming data.                                  |
 | Streaming HAProxy                      | 8088    | Load balancer for streaming services.                            |
+
+## ⚠️ Disclaimer
+
+**LyricWave** is an **experimental AI-driven music generation platform** designed for **creative exploration** and **educational purposes**. While LyricWave integrates advanced technologies such as **AudioCraft** for melody generation, **Suno-AI Bark** for voice cloning, and **Stable Diffusion** for cover image creation, it is **not intended for commercial production use**.
+
+This platform combines the capabilities of various AI models to create music and accompanying artwork, but the generated content may **not always meet professional standards**. The voice cloning and music synthesis processes are **experimental**, and the quality of output may vary.
 
 ## Contribution
 Contributions to LyricWave are highly encouraged! If you're interested in adding new features, resolving bugs, or enhancing the project's functionality, please feel free to submit pull requests.
