@@ -336,7 +336,4 @@ This project is licensed under the [MIT License](LICENSE).
 
 Special thanks to the open-source community and the contributors who have made this project possible.
 
-## Visitors Count
-
-<img width="auto" src="https://profile-counter.glitch.me/lyric_wave_architecture/count.svg" />
 
